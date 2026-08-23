@@ -1,0 +1,2936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Grand Market</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+--bg:#060711;
+--card:#111525;
+--muted:#9ca5bd;
+--white:#fff;
+--green:#39f59a;
+--cyan:#20d9ff;
+--blue:#657cff;
+--purple:#a855f7;
+--pink:#ff4fa3;
+--orange:#ff8a3d;
+--gold:#ffd45a;
+--red:#ff5264;
+}
+
+body{
+font-family:Arial,Helvetica,sans-serif;
+background:var(--bg);
+color:white;
+min-height:100vh;
+overflow-x:hidden;
+}
+
+body:before{
+content:"";
+position:fixed;
+inset:0;
+z-index:-1;
+pointer-events:none;
+background:
+radial-gradient(circle at 5% 10%,rgba(168,85,247,.22),transparent 28%),
+radial-gradient(circle at 95% 10%,rgba(32,217,255,.17),transparent 28%),
+radial-gradient(circle at 50% 100%,rgba(57,245,154,.10),transparent 30%);
+}
+
+button{
+border:0;
+cursor:pointer;
+font-family:inherit;
+}
+
+.hidden{display:none!important}
+.muted{color:var(--muted)}
+
+input,textarea,select{
+width:100%;
+padding:14px;
+margin:7px 0;
+border-radius:13px;
+border:1px solid rgba(255,255,255,.1);
+outline:none;
+background:#0b0e19;
+color:white;
+}
+
+textarea{
+min-height:100px;
+resize:vertical;
+}
+
+.btn{
+padding:13px 18px;
+border-radius:13px;
+color:white;
+font-weight:800;
+background:linear-gradient(135deg,var(--purple),var(--blue),var(--cyan));
+transition:.25s;
+}
+
+.btn:hover{
+transform:translateY(-2px);
+box-shadow:0 10px 30px rgba(101,124,255,.25);
+}
+
+.btn.green{
+color:#03130c;
+background:linear-gradient(135deg,var(--green),var(--cyan));
+}
+
+.btn.red{
+background:linear-gradient(135deg,var(--red),var(--purple));
+}
+
+.full{width:100%}
+
+/* AUTH */
+
+.auth{
+min-height:100vh;
+display:flex;
+align-items:center;
+justify-content:center;
+padding:20px;
+}
+
+.auth-box{
+width:100%;
+max-width:440px;
+padding:32px;
+border-radius:26px;
+background:rgba(14,17,30,.95);
+border:1px solid rgba(255,255,255,.1);
+box-shadow:0 30px 100px rgba(0,0,0,.6);
+animation:fadeUp .6s ease;
+}
+
+.logo{
+font-size:23px;
+font-weight:900;
+letter-spacing:-1px;
+}
+
+.logo span{
+background:linear-gradient(90deg,var(--green),var(--cyan),var(--purple),var(--pink),var(--orange));
+-webkit-background-clip:text;
+color:transparent;
+}
+
+.auth-box h1{
+font-size:30px;
+margin:28px 0 8px;
+}
+
+/* APP */
+
+#app{display:none}
+
+.sidebar{
+position:fixed;
+top:0;
+left:0;
+bottom:0;
+width:250px;
+padding:20px 13px;
+background:rgba(7,9,18,.97);
+border-right:1px solid rgba(255,255,255,.08);
+overflow-y:auto;
+z-index:100;
+}
+
+.sidebar .logo{
+padding:10px 12px 25px;
+}
+
+.nav{
+width:100%;
+padding:13px;
+margin:3px 0;
+text-align:left;
+color:#aeb6ca;
+border-radius:12px;
+background:transparent;
+font-weight:700;
+transition:.2s;
+}
+
+.nav:hover,.nav.active{
+color:white;
+background:linear-gradient(100deg,rgba(168,85,247,.3),rgba(32,217,255,.12),rgba(57,245,154,.08));
+}
+
+.main{
+margin-left:250px;
+}
+
+.header{
+height:72px;
+display:flex;
+align-items:center;
+justify-content:space-between;
+padding:0 28px;
+position:sticky;
+top:0;
+z-index:90;
+background:rgba(8,10,20,.88);
+backdrop-filter:blur(15px);
+border-bottom:1px solid rgba(255,255,255,.08);
+}
+
+.user-mini{
+display:flex;
+align-items:center;
+gap:10px;
+}
+
+.avatar{
+width:42px;
+height:42px;
+border-radius:50%;
+display:flex;
+align-items:center;
+justify-content:center;
+overflow:hidden;
+background:linear-gradient(135deg,var(--purple),var(--cyan));
+font-weight:900;
+flex-shrink:0;
+}
+
+.avatar img,.big-avatar img{
+width:100%;
+height:100%;
+object-fit:cover;
+}
+
+.content{
+max-width:1450px;
+margin:auto;
+padding:28px;
+}
+
+.page{
+display:none;
+animation:pageIn .35s ease;
+}
+
+.page.active{
+display:block;
+}
+
+/* HERO */
+
+.hero{
+padding:30px;
+border-radius:24px;
+background:linear-gradient(135deg,rgba(168,85,247,.28),rgba(101,124,255,.2),rgba(32,217,255,.17),rgba(57,245,154,.12));
+border:1px solid rgba(255,255,255,.1);
+}
+
+.hero h1{
+font-size:31px;
+margin-bottom:8px;
+}
+
+.balance{
+margin-top:18px;
+padding:25px;
+border-radius:21px;
+background:linear-gradient(135deg,#123c2b,#14354c,#29204b,#421d40);
+border:1px solid rgba(255,255,255,.1);
+}
+
+.cp{
+font-size:38px;
+font-weight:900;
+margin:8px 0;
+background:linear-gradient(90deg,var(--green),var(--cyan),var(--gold));
+-webkit-background-clip:text;
+color:transparent;
+}
+
+/* QUICK */
+
+.quick{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+gap:13px;
+margin-top:18px;
+}
+
+.quick button{
+min-height:110px;
+border-radius:18px;
+color:white;
+font-weight:900;
+border:1px solid rgba(255,255,255,.09);
+background:linear-gradient(135deg,rgba(168,85,247,.25),rgba(32,217,255,.1));
+transition:.3s;
+}
+
+.quick button:hover{
+transform:translateY(-5px) scale(1.02);
+box-shadow:0 15px 35px rgba(168,85,247,.18);
+}
+
+/* CARDS */
+
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+gap:15px;
+margin-top:18px;
+}
+
+.card{
+padding:20px;
+border-radius:19px;
+background:rgba(17,21,37,.88);
+border:1px solid rgba(255,255,255,.09);
+backdrop-filter:blur(12px);
+}
+
+.card:hover{
+border-color:rgba(255,255,255,.16);
+}
+
+.member{
+display:flex;
+align-items:center;
+gap:13px;
+}
+
+.member-info{flex:1}
+.member-name{font-weight:900}
+.member-user{font-size:12px;color:var(--muted);margin-top:3px}
+
+/* ROLES */
+
+.role{
+display:inline-block;
+padding:5px 10px;
+border-radius:20px;
+font-size:10px;
+font-weight:900;
+margin-top:7px;
+color:white;
+}
+
+.role-owner{background:linear-gradient(90deg,#ffd45a,#ff8a3d)}
+.role-admin{background:linear-gradient(90deg,#ff5264,#ff8a3d)}
+.role-mod{background:linear-gradient(90deg,#657cff,#20d9ff)}
+.role-vip{background:linear-gradient(90deg,#a855f7,#ff4fa3)}
+.role-premium{background:linear-gradient(90deg,#20d9ff,#a855f7)}
+.role-seller{background:linear-gradient(90deg,#39f59a,#20d9ff)}
+.role-member{background:linear-gradient(90deg,#555d70,#8d95a8)}
+
+/* PROFILE */
+
+.cover{
+height:190px;
+border-radius:23px;
+background:linear-gradient(120deg,#a855f7,#657cff,#20d9ff,#39f59a,#ffd45a,#ff4fa3);
+background-size:300% 300%;
+animation:gradientMove 8s ease infinite;
+}
+
+.profile{
+margin-top:-48px;
+position:relative;
+}
+
+.big-avatar{
+width:100px;
+height:100px;
+border-radius:50%;
+border:5px solid #111525;
+display:flex;
+align-items:center;
+justify-content:center;
+overflow:hidden;
+font-size:30px;
+background:linear-gradient(135deg,var(--purple),var(--cyan));
+}
+
+/* CHAT */
+
+.chat-layout{
+display:grid;
+grid-template-columns:280px 1fr;
+height:620px;
+border-radius:20px;
+overflow:hidden;
+border:1px solid rgba(255,255,255,.09);
+background:#0c0f1c;
+}
+
+.chat-users{
+border-right:1px solid rgba(255,255,255,.08);
+overflow-y:auto;
+}
+
+.chat-user{
+padding:15px;
+display:flex;
+gap:10px;
+align-items:center;
+cursor:pointer;
+border-bottom:1px solid rgba(255,255,255,.05);
+transition:.2s;
+}
+
+.chat-user:hover,.chat-user.active{
+background:linear-gradient(90deg,rgba(168,85,247,.2),rgba(32,217,255,.08));
+}
+
+.chat-window{
+display:flex;
+flex-direction:column;
+min-width:0;
+}
+
+.chat-header{
+padding:16px;
+border-bottom:1px solid rgba(255,255,255,.08);
+font-weight:900;
+}
+
+.chat-messages{
+flex:1;
+overflow-y:auto;
+padding:18px;
+display:flex;
+flex-direction:column;
+gap:9px;
+}
+
+.bubble{
+max-width:75%;
+padding:11px 14px;
+border-radius:17px;
+font-size:14px;
+line-height:1.4;
+animation:messageIn .2s ease;
+}
+
+.bubble.me{
+align-self:flex-end;
+background:linear-gradient(135deg,var(--purple),var(--blue));
+border-bottom-right-radius:5px;
+}
+
+.bubble.them{
+align-self:flex-start;
+background:#1b2031;
+border-bottom-left-radius:5px;
+}
+
+.chat-time{
+font-size:9px;
+opacity:.6;
+display:block;
+margin-top:4px;
+}
+
+.chat-input{
+display:flex;
+gap:8px;
+padding:12px;
+border-top:1px solid rgba(255,255,255,.08);
+}
+
+.chat-input input{
+margin:0;
+}
+
+/* TEAM */
+
+.team-showcase{
+position:relative;
+overflow:hidden;
+margin-top:20px;
+border-radius:25px;
+min-height:420px;
+background:linear-gradient(135deg,rgba(168,85,247,.2),rgba(32,217,255,.1),rgba(57,245,154,.08));
+border:1px solid rgba(255,255,255,.1);
+touch-action:pan-y;
+}
+
+.team-track{
+display:flex;
+transition:transform .6s cubic-bezier(.2,.8,.2,1);
+height:100%;
+}
+
+.team-slide{
+min-width:100%;
+padding:45px 25px;
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+text-align:center;
+}
+
+.team-avatar{
+width:130px;
+height:130px;
+border-radius:50%;
+overflow:hidden;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:50px;
+background:linear-gradient(135deg,var(--purple),var(--cyan));
+border:4px solid rgba(255,255,255,.25);
+box-shadow:0 0 50px rgba(168,85,247,.25);
+animation:float 3s ease-in-out infinite;
+}
+
+.team-avatar img{
+width:100%;
+height:100%;
+object-fit:cover;
+}
+
+.team-slide h2{
+font-size:28px;
+margin-top:20px;
+}
+
+.team-controls{
+position:absolute;
+left:0;
+right:0;
+bottom:18px;
+display:flex;
+justify-content:center;
+gap:10px;
+}
+
+.team-control{
+width:42px;
+height:42px;
+border-radius:50%;
+background:rgba(255,255,255,.1);
+color:white;
+font-size:18px;
+}
+
+/* LIST */
+
+.list{
+display:flex;
+flex-direction:column;
+gap:10px;
+margin-top:18px;
+}
+
+.item{
+padding:15px;
+border-radius:14px;
+background:#0d111e;
+border:1px solid rgba(255,255,255,.08);
+}
+
+/* NOTIFICATIONS */
+
+.notification{
+padding:16px;
+border-radius:15px;
+background:linear-gradient(135deg,rgba(168,85,247,.18),rgba(32,217,255,.1));
+border:1px solid rgba(255,255,255,.09);
+}
+
+/* ANIMATION */
+
+@keyframes fadeUp{
+from{opacity:0;transform:translateY(20px)}
+to{opacity:1;transform:translateY(0)}
+}
+
+@keyframes pageIn{
+from{opacity:0;transform:translateY(8px)}
+to{opacity:1;transform:translateY(0)}
+}
+
+@keyframes messageIn{
+from{opacity:0;transform:scale(.94)}
+to{opacity:1;transform:scale(1)}
+}
+
+@keyframes float{
+0%,100%{transform:translateY(0)}
+50%{transform:translateY(-8px)}
+}
+
+@keyframes gradientMove{
+0%{background-position:0% 50%}
+50%{background-position:100% 50%}
+100%{background-position:0% 50%}
+}
+
+/* MOBILE */
+
+@media(max-width:800px){
+
+.sidebar{
+width:70px;
+padding:15px 7px;
+}
+
+.sidebar .logo{
+text-align:center;
+}
+
+.sidebar .logo span{
+display:none;
+}
+
+.nav{
+text-align:center;
+font-size:20px;
+}
+
+.nav .txt{
+display:none;
+}
+
+.main{
+margin-left:70px;
+}
+
+.content{
+padding:16px;
+}
+
+.chat-layout{
+grid-template-columns:95px 1fr;
+height:600px;
+}
+
+.chat-user span:not(.avatar){
+display:none;
+}
+
+}
+
+@media(max-width:550px){
+
+.sidebar{
+display:none;
+}
+
+.main{
+margin-left:0;
+}
+
+.header{
+padding:0 15px;
+}
+
+.content{
+padding:14px;
+}
+
+.hero h1{
+font-size:25px;
+}
+
+.chat-layout{
+grid-template-columns:1fr;
+height:650px;
+}
+
+.chat-users{
+height:120px;
+display:flex;
+overflow-x:auto;
+border-right:0;
+border-bottom:1px solid rgba(255,255,255,.08);
+}
+
+.chat-user{
+min-width:100px;
+flex-direction:column;
+justify-content:center;
+}
+
+}
+</style>
+</head>
+
+<body>
+
+<section id="auth" class="auth">
+
+<div class="auth-box">
+
+<div class="logo">
+GRAND <span>MARKET</span>
+</div>
+
+<div id="loginBox">
+
+<h1>Welcome back 👋</h1>
+
+<p class="muted">Login to your Grand Market account.</p>
+
+<input id="loginEmail" type="email" placeholder="Email">
+<input id="loginPassword" type="password" placeholder="Password">
+
+<button class="btn green full" onclick="login()">
+🔐 Login
+</button>
+
+<p id="loginMsg" class="muted" style="margin-top:10px"></p>
+
+<p style="margin-top:18px">
+Don't have an account?
+</p>
+
+<button class="btn full" onclick="showRegister()">
+🚀 Create Account
+</button>
+
+</div>
+
+<div id="registerBox" class="hidden">
+
+<h1>Create account 🚀</h1>
+
+<p class="muted">Join Grand Market.</p>
+
+<input id="regUsername" placeholder="Username">
+<input id="regDisplay" placeholder="Display Name">
+<input id="regEmail" type="email" placeholder="Email">
+<input id="regPassword" type="password" placeholder="Password">
+
+<textarea id="regBio" placeholder="Bio"></textarea>
+
+<button class="btn green full" onclick="register()">
+🚀 Create Account
+</button>
+
+<p id="regMsg" class="muted" style="margin-top:10px"></p>
+
+<button class="btn full" onclick="showLogin()">
+← Back to Login
+</button>
+
+</div>
+
+</div>
+</section>
+
+<div id="app">
+
+<aside class="sidebar">
+
+<div class="logo">
+GRAND <span>MARKET</span>
+</div>
+
+<button class="nav active" onclick="openPage('home',this)">🏠 <span class="txt">Home</span></button>
+<button class="nav" onclick="openPage('members',this)">👥 <span class="txt">Members</span></button>
+<button class="nav" onclick="openPage('messages',this)">💬 <span class="txt">Messages</span></button>
+<button class="nav" onclick="openPage('groups',this)">👨‍👩‍👧 <span class="txt">Groups</span></button>
+<button class="nav" onclick="openPage('market',this)">🛒 <span class="txt">Marketplace</span></button>
+<button class="nav" onclick="openPage('wallet',this)">🪙 <span class="txt">CP Wallet</span></button>
+<button class="nav" onclick="openPage('ratings',this)">⭐ <span class="txt">Ratings</span></button>
+<button class="nav" onclick="openPage('giveaways',this)">🎁 <span class="txt">Giveaways</span></button>
+<button class="nav" onclick="openPage('leaderboard',this)">🏆 <span class="txt">Leaderboard</span></button>
+<button class="nav" onclick="openPage('team',this)">🛡️ <span class="txt">Team</span></button>
+<button class="nav" onclick="openPage('reports',this)">🚨 <span class="txt">Reports</span></button>
+<button class="nav" onclick="openPage('notifications',this)">🔔 <span class="txt">Notifications</span></button>
+<button class="nav" onclick="openPage('profile',this)">👤 <span class="txt">My Profile</span></button>
+<button class="nav" onclick="openPage('settings',this)">⚙️ <span class="txt">Settings</span></button>
+
+<button class="nav" onclick="logout()">
+🚪 <span class="txt">Logout</span>
+</button>
+
+</aside>
+
+<main class="main">
+
+<header class="header">
+
+<div class="logo">
+GRAND <span>MARKET</span>
+</div>
+
+<div class="user-mini">
+
+<div id="headerAvatar" class="avatar">👤</div>
+
+<strong id="headerName">Player</strong>
+
+</div>
+
+</header>
+
+<div class="content">
+
+<!-- HOME -->
+
+<section id="home" class="page active">
+
+<div class="hero">
+
+<h1>
+Welcome back,
+<span id="welcomeName"></span> 🔥
+</h1>
+
+<p class="muted">
+Your Grand Market dashboard.
+</p>
+
+</div>
+
+<div class="balance">
+
+<small>YOUR CP BALANCE</small>
+
+<div class="cp">
+<span id="homeCP">0</span> CP
+</div>
+
+<p class="muted">₦1 = 1,000 CP</p>
+
+</div>
+
+<h2 style="margin-top:28px">
+⚡ Quick Actions
+</h2>
+
+<div class="quick">
+
+<button onclick="openPageById('market')">🛒<br>Marketplace</button>
+<button onclick="openPageById('wallet')">🪙<br>CP Wallet</button>
+<button onclick="openPageById('messages')">💬<br>Messages</button>
+<button onclick="openPageById('members')">👥<br>Members</button>
+<button onclick="openPageById('groups')">👨‍👩‍👧<br>Groups</button>
+<button onclick="openPageById('giveaways')">🎁<br>Giveaways</button>
+<button onclick="openPageById('ratings')">⭐<br>Ratings</button>
+<button onclick="openPageById('reports')">🚨<br>Report</button>
+
+</div>
+
+<div class="grid">
+
+<div class="card">
+<h3>👥 Members</h3>
+<p id="memberCount" class="muted">Loading...</p>
+</div>
+
+<div class="card">
+<h3>👨‍👩‍👧 Groups</h3>
+<p class="muted">Build your community.</p>
+</div>
+
+<div class="card">
+<h3>🛒 Marketplace</h3>
+<p class="muted">Trade using CP.</p>
+</div>
+
+<div class="card">
+<h3>⭐ Ratings</h3>
+<p class="muted">Build your reputation.</p>
+</div>
+
+</div>
+
+</section>
+
+<!-- MEMBERS -->
+
+<section id="members" class="page">
+
+<h1>👥 Members</h1>
+
+<p class="muted">Discover Grand Market members.</p>
+
+<input id="memberSearch" placeholder="🔎 Search members..." oninput="searchMembers()">
+
+<div id="membersList" class="grid"></div>
+
+</section>
+
+<!-- PUBLIC PROFILE -->
+
+<section id="publicProfile" class="page">
+
+<button class="btn" onclick="openPageById('members')">
+← Back
+</button>
+
+<div class="cover"></div>
+
+<div class="card profile">
+
+<div id="publicAvatar" class="big-avatar">👤</div>
+
+<h1 id="publicName" style="margin-top:15px"></h1>
+
+<p id="publicUsername" class="muted"></p>
+
+<div id="publicRole"></div>
+
+<p id="publicBio" class="muted" style="margin-top:15px"></p>
+
+<div class="grid">
+
+<div class="card">
+<h3>📅 Member Since</h3>
+<p id="publicDate">—</p>
+</div>
+
+<div class="card">
+<h3>⭐ Rating</h3>
+<p id="publicRating">No ratings yet</p>
+</div>
+
+</div>
+
+<button class="btn green" onclick="messageViewedUser()">
+💬 Chat
+</button>
+
+<button class="btn red" onclick="reportViewedUser()">
+🚨 Report
+</button>
+
+</div>
+
+</section>
+
+<!-- MESSAGES -->
+
+<section id="messages" class="page">
+
+<h1>💬 Messages</h1>
+
+<p class="muted">
+Real private conversations.
+</p>
+
+<div class="chat-layout" style="margin-top:20px">
+
+<div class="chat-users">
+
+<div id="conversationList">
+<div class="item">Loading...</div>
+</div>
+
+</div>
+
+<div class="chat-window">
+
+<div class="chat-header" id="chatHeader">
+💬 Select a conversation
+</div>
+
+<div id="chatMessages" class="chat-messages">
+
+<div class="muted" style="text-align:center;margin:auto">
+Select a member to start chatting.
+</div>
+
+</div>
+
+<div class="chat-input">
+
+<input
+id="chatInput"
+placeholder="Write a message..."
+onkeydown="handleChatKey(event)"
+>
+
+<button class="btn green" onclick="sendChatMessage()">
+➤
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="card" style="margin-top:15px">
+
+<h3>💬 Start a new chat</h3>
+
+<input
+id="newChatUsername"
+placeholder="@username"
+>
+
+<button class="btn" onclick="startNewChat()">
+Start Chat
+</button>
+
+<p id="chatStatus" class="muted"></p>
+
+</div>
+
+</section>
+
+<!-- GROUPS -->
+
+<section id="groups" class="page">
+
+<h1>👨‍👩‍👧 Groups</h1>
+
+<p class="muted">Find and join communities.</p>
+
+<div id="groupsList" class="grid"></div>
+
+</section>
+
+<!-- MARKET -->
+
+<section id="market" class="page">
+
+<h1>🛒 Marketplace</h1>
+
+<p class="muted">Buy and sell with CP.</p>
+
+<button class="btn green" onclick="toggleListing()">
+➕ Create Listing
+</button>
+
+<div id="listingForm" class="card hidden" style="margin-top:15px">
+
+<input id="listingTitle" placeholder="Item title">
+
+<textarea id="listingDescription" placeholder="Description"></textarea>
+
+<input id="listingPrice" type="number" placeholder="Price in CP">
+
+<input id="listingImage" placeholder="Image URL">
+
+<button class="btn green" onclick="createListing()">
+Publish Listing
+</button>
+
+</div>
+
+<div id="listings" class="grid"></div>
+
+</section>
+
+<!-- WALLET -->
+
+<section id="wallet" class="page">
+
+<h1>🪙 CP Wallet</h1>
+
+<div class="balance">
+
+<div class="cp">
+<span id="walletCP">0</span> CP
+</div>
+
+<p class="muted">₦1 = 1,000 CP</p>
+
+</div>
+
+<div class="card" style="margin-top:18px">
+
+<h2>💰 Deposit CP</h2>
+
+<p class="muted" style="margin-top:10px">Moniepoint</p>
+
+<p>Adedayo Oluwaferanmi Oyewole</p>
+
+<p>8087447979</p>
+
+<input id="depositAmount" type="number" placeholder="Amount in ₦">
+
+<input id="depositReference" placeholder="Payment reference">
+
+<button class="btn green" onclick="submitDeposit()">
+Submit Deposit
+</button>
+
+<p id="depositStatus" class="muted"></p>
+
+</div>
+
+</section>
+
+<!-- RATINGS -->
+
+<section id="ratings" class="page">
+
+<h1>⭐ Ratings</h1>
+
+<p class="muted">Community reputation.</p>
+
+<div id="ratingsList" class="grid"></div>
+
+</section>
+
+<!-- GIVEAWAYS -->
+
+<section id="giveaways" class="page">
+
+<h1>🎁 Giveaways</h1>
+
+<div id="giveawaysList" class="grid"></div>
+
+</section>
+
+<!-- LEADERBOARD -->
+
+<section id="leaderboard" class="page">
+
+<h1>🏆 Leaderboard</h1>
+
+<div id="leaderboardList" class="list"></div>
+
+</section>
+
+<!-- TEAM -->
+
+<section id="team" class="page">
+
+<h1>🛡️ Grand Market Team</h1>
+
+<p class="muted">
+Swipe through the team or let it change automatically.
+</p>
+
+<div class="team-showcase" id="teamShowcase">
+
+<div class="team-track" id="teamTrack"></div>
+
+<div class="team-controls">
+
+<button class="team-control" onclick="previousTeam()">
+‹
+</button>
+
+<button class="team-control" onclick="nextTeam()">
+›
+</button>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- REPORTS -->
+
+<section id="reports" class="page">
+
+<h1>🚨 Report Center</h1>
+
+<div class="card">
+
+<select id="reportReason">
+
+<option value="">Select reason</option>
+<option>Scam</option>
+<option>Harassment</option>
+<option>Fake Listing</option>
+<option>Impersonation</option>
+<option>Spam</option>
+<option>Other</option>
+
+</select>
+
+<input id="reportUsername" placeholder="@username">
+
+<textarea id="reportDetails" placeholder="Explain the problem..."></textarea>
+
+<button class="btn red" onclick="submitReport()">
+🚨 Submit Report
+</button>
+
+<p id="reportStatus" class="muted"></p>
+
+</div>
+
+</section>
+
+<!-- NOTIFICATIONS -->
+
+<section id="notifications" class="page">
+
+<h1>🔔 Notifications</h1>
+
+<div id="notificationsList" class="list"></div>
+
+</section>
+
+<!-- PROFILE -->
+
+<section id="profile" class="page">
+
+<h1>👤 My Profile</h1>
+
+<div class="cover"></div>
+
+<div class="card profile">
+
+<div id="myAvatar" class="big-avatar">👤</div>
+
+<h1 id="myName" style="margin-top:15px"></h1>
+
+<p id="myUsername" class="muted"></p>
+
+<div id="myRole"></div>
+
+<p id="myBio" class="muted" style="margin-top:15px"></p>
+
+<div class="grid">
+
+<div class="card">
+<h3>🪙 CP</h3>
+<p id="myCP">0 CP</p>
+</div>
+
+<div class="card">
+<h3>📅 Joined</h3>
+<p id="myJoined">—</p>
+</div>
+
+</div>
+
+<button class="btn green" onclick="openEditProfile()">
+✏️ Edit Profile
+</button>
+
+</div>
+
+</section>
+
+<!-- EDIT PROFILE -->
+
+<section id="editProfile" class="page">
+
+<h1>✏️ Edit Profile</h1>
+
+<div class="card">
+
+<input id="editDisplay" placeholder="Display name">
+
+<input id="editUsername" placeholder="Username">
+
+<textarea id="editBio" placeholder="Bio"></textarea>
+
+<input id="editAvatar" placeholder="Avatar image URL">
+
+<button class="btn green" onclick="saveProfile()">
+💾 Save Changes
+</button>
+
+<button class="btn" onclick="openPageById('profile')">
+Cancel
+</button>
+
+<p id="profileStatus" class="muted"></p>
+
+</div>
+
+</section>
+
+<!-- SETTINGS -->
+
+<section id="settings" class="page">
+
+<h1>⚙️ Settings</h1>
+
+<div class="card">
+
+<h2>Account</h2>
+
+<p class="muted" style="margin-top:10px">
+Manage your Grand Market account.
+</p>
+
+<button class="btn red" onclick="logout()">
+🚪 Logout
+</button>
+
+</div>
+
+</section>
+
+</div>
+</main>
+</div>
+
+<script>
+
+/* SUPABASE */
+
+const SUPABASE_URL =
+"https://qdnnduidzakdfzhrefnn.supabase.co";
+
+const SUPABASE_PUBLISHABLE_KEY =
+"sb_publishable_E5EGBYHgJ3I7-qE-jYeaxQ_aHosDKPe";
+
+const db =
+supabase.createClient(
+SUPABASE_URL,
+SUPABASE_PUBLISHABLE_KEY
+);
+
+/* GLOBALS */
+
+let currentUser=null;
+let currentProfile=null;
+let allMembers=[];
+let viewedUser=null;
+
+let activeChatUser=null;
+let realtimeChannel=null;
+
+let teamMembers=[];
+let teamIndex=0;
+let teamTimer=null;
+
+
+/* AUTH */
+
+function showRegister(){
+document.getElementById("loginBox").classList.add("hidden");
+document.getElementById("registerBox").classList.remove("hidden");
+}
+
+function showLogin(){
+document.getElementById("registerBox").classList.add("hidden");
+document.getElementById("loginBox").classList.remove("hidden");
+}
+
+
+/* REGISTER */
+
+async function register(){
+
+const username=document.getElementById("regUsername").value.trim();
+const displayName=document.getElementById("regDisplay").value.trim();
+const email=document.getElementById("regEmail").value.trim();
+const password=document.getElementById("regPassword").value;
+const bio=document.getElementById("regBio").value.trim();
+
+const status=document.getElementById("regMsg");
+
+if(!username||!displayName||!email||!password){
+status.textContent="Please complete all required fields.";
+return;
+}
+
+status.textContent="Creating account...";
+
+const {data,error}=await db.auth.signUp({
+email,
+password
+});
+
+if(error){
+status.textContent=error.message;
+return;
+}
+
+if(!data.user){
+status.textContent="Account creation failed.";
+return;
+}
+
+const {error:profileError}=await db
+.from("Profiles")
+.update({
+username,
+display_name:displayName,
+bio,
+role:"Grand Member"
+})
+.eq("user_id",data.user.id);
+
+if(profileError){
+console.error(profileError);
+status.textContent=
+"Account created, but profile setup needs attention.";
+return;
+}
+
+status.textContent="Account created successfully 🔥";
+
+setTimeout(showLogin,1000);
+}
+
+
+/* LOGIN */
+
+async function login(){
+
+const email=document.getElementById("loginEmail").value.trim();
+const password=document.getElementById("loginPassword").value;
+const status=document.getElementById("loginMsg");
+
+if(!email||!password){
+status.textContent="Enter email and password.";
+return;
+}
+
+status.textContent="Logging in...";
+
+const {data,error}=await db.auth.signInWithPassword({
+email,
+password
+});
+
+if(error){
+status.textContent=error.message;
+return;
+}
+
+currentUser=data.user;
+
+await startApp();
+}
+
+
+/* START */
+
+async function startApp(){
+
+document.getElementById("auth").style.display="none";
+document.getElementById("app").style.display="block";
+
+await loadProfile();
+await loadMembers();
+await loadGroups();
+await loadConversations();
+await loadListings();
+await loadRatings();
+await loadGiveaways();
+await loadNotifications();
+
+loadLeaderboard();
+buildTeam();
+
+setupRealtime();
+}
+
+
+/* PROFILE */
+
+async function loadProfile(){
+
+if(!currentUser)return;
+
+const {data,error}=await db
+.from("Profiles")
+.select("*")
+.eq("user_id",currentUser.id)
+.single();
+
+if(error){
+console.error("Profile error:",error);
+return;
+}
+
+currentProfile=data;
+
+const name=data.display_name||data.username||"Player";
+
+const cp=Number(
+data.cp_balance ??
+data.CP ??
+0
+);
+
+document.getElementById("welcomeName").textContent=name;
+document.getElementById("headerName").textContent=name;
+
+document.getElementById("homeCP").textContent=
+cp.toLocaleString();
+
+document.getElementById("walletCP").textContent=
+cp.toLocaleString();
+
+document.getElementById("myName").textContent=name;
+
+document.getElementById("myUsername").textContent=
+"@"+(data.username||"user");
+
+document.getElementById("myBio").textContent=
+data.bio||"No bio yet.";
+
+document.getElementById("myCP").textContent=
+cp.toLocaleString()+" CP";
+
+document.getElementById("myRole").innerHTML=
+roleBadge(data.role);
+
+document.getElementById("myJoined").textContent=
+data.created_at
+?new Date(data.created_at).toLocaleDateString()
+:"—";
+
+if(data.avatar_url){
+
+const img=
+`<img src="${escapeHTML(data.avatar_url)}">`;
+
+document.getElementById("myAvatar").innerHTML=img;
+document.getElementById("headerAvatar").innerHTML=img;
+}
+
+}
+
+
+/* EDIT PROFILE */
+
+function openEditProfile(){
+
+if(!currentProfile)return;
+
+document.getElementById("editDisplay").value=
+currentProfile.display_name||"";
+
+document.getElementById("editUsername").value=
+currentProfile.username||"";
+
+document.getElementById("editBio").value=
+currentProfile.bio||"";
+
+document.getElementById("editAvatar").value=
+currentProfile.avatar_url||"";
+
+openPageById("editProfile");
+}
+
+
+async function saveProfile(){
+
+const display_name=
+document.getElementById("editDisplay").value.trim();
+
+const username=
+document.getElementById("editUsername").value.trim();
+
+const bio=
+document.getElementById("editBio").value.trim();
+
+const avatar_url=
+document.getElementById("editAvatar").value.trim();
+
+const status=
+document.getElementById("profileStatus");
+
+if(!display_name||!username){
+
+status.textContent=
+"Display name and username are required.";
+
+return;
+}
+
+status.textContent="Saving...";
+
+const {error}=await db
+.from("Profiles")
+.update({
+display_name,
+username,
+bio,
+avatar_url:avatar_url||null
+})
+.eq("user_id",currentUser.id);
+
+if(error){
+
+status.textContent=error.message;
+return;
+}
+
+status.textContent="Profile updated successfully 🔥";
+
+await loadProfile();
+
+setTimeout(
+()=>openPageById("profile"),
+700
+);
+}
+
+
+/* MEMBERS */
+
+async function loadMembers(){
+
+const {data,error}=await db
+.from("Profiles")
+.select(
+"user_id,username,display_name,bio,avatar_url,role,created_at"
+)
+.order("created_at",{ascending:false});
+
+if(error){
+console.error(error);
+return;
+}
+
+allMembers=data||[];
+
+document.getElementById("memberCount").textContent=
+allMembers.length+" registered members";
+
+renderMembers(allMembers);
+}
+
+
+function renderMembers(list){
+
+const box=document.getElementById("membersList");
+
+if(!list.length){
+
+box.innerHTML=
+`<div class="card">No members found.</div>`;
+
+return;
+}
+
+box.innerHTML=list.map(member=>{
+
+const name=
+member.display_name||
+member.username||
+"Player";
+
+return`
+
+<div class="card member">
+
+<div class="avatar">
+${
+member.avatar_url
+?`<img src="${escapeHTML(member.avatar_url)}">`
+:"👤"
+}
+</div>
+
+<div class="member-info">
+
+<div class="member-name">
+${escapeHTML(name)}
+</div>
+
+<div class="member-user">
+@${escapeHTML(member.username||"user")}
+</div>
+
+${roleBadge(member.role)}
+
+</div>
+
+<button class="btn"
+onclick="openMemberProfile('${member.user_id}')">
+View
+</button>
+
+</div>
+
+`;
+
+}).join("");
+}
+
+
+function searchMembers(){
+
+const q=document
+.getElementById("memberSearch")
+.value
+.toLowerCase();
+
+renderMembers(
+allMembers.filter(m=>
+String(m.username||"").toLowerCase().includes(q)||
+String(m.display_name||"").toLowerCase().includes(q)||
+String(m.role||"").toLowerCase().includes(q)
+)
+);
+}
+
+
+/* PUBLIC PROFILE */
+
+function openMemberProfile(id){
+
+viewedUser=
+allMembers.find(m=>m.user_id===id);
+
+if(!viewedUser)return;
+
+document.getElementById("publicName").textContent=
+viewedUser.display_name||
+viewedUser.username||
+"Player";
+
+document.getElementById("publicUsername").textContent=
+"@"+(viewedUser.username||"user");
+
+document.getElementById("publicBio").textContent=
+viewedUser.bio||"No bio yet.";
+
+document.getElementById("publicRole").innerHTML=
+roleBadge(viewedUser.role);
+
+document.getElementById("publicDate").textContent=
+viewedUser.created_at
+?new Date(viewedUser.created_at).toLocaleDateString()
+:"—";
+
+document.getElementById("publicAvatar").innerHTML=
+viewedUser.avatar_url
+?`<img src="${escapeHTML(viewedUser.avatar_url)}">`
+:"👤";
+
+openPageById("publicProfile");
+}
+
+
+function messageViewedUser(){
+
+if(!viewedUser)return;
+
+activeChatUser=viewedUser;
+
+openPageById("messages");
+
+loadConversations().then(()=>{
+openConversation(viewedUser);
+});
+}
+
+
+function reportViewedUser(){
+
+if(viewedUser){
+document.getElementById("reportUsername").value=
+"@"+(viewedUser.username||"");
+}
+
+openPageById("reports");
+}
+
+
+/* REAL CHAT */
+
+async function startNewChat(){
+
+const username=
+document.getElementById("newChatUsername")
+.value
+.replace("@","")
+.trim();
+
+const status=
+document.getElementById("chatStatus");
+
+if(!username){
+status.textContent="Enter a username.";
+return;
+}
+
+const {data,error}=await db
+.from("Profiles")
+.select("*")
+.eq("username",username)
+.single();
+
+if(error||!data){
+
+status.textContent="User not found.";
+return;
+}
+
+if(data.user_id===currentUser.id){
+
+status.textContent="You cannot chat with yourself.";
+return;
+}
+
+activeChatUser=data;
+
+document.getElementById("newChatUsername").value="";
+
+status.textContent="Chat opened 💬";
+
+await loadConversations();
+
+openConversation(data);
+}
+
+
+async function loadConversations(){
+
+const box=
+document.getElementById("conversationList");
+
+const {data,error}=await db
+.from("messages")
+.select("sender_id,receiver_id,created_at,content")
+.or(
+`sender_id.eq.${currentUser.id},receiver_id.eq.${currentUser.id}`
+)
+.order("created_at",{ascending:false});
+
+if(error){
+
+box.innerHTML=
+`<div class="item">Unable to load chats.</div>`;
+
+console.error(error);
+return;
+}
+
+if(!data||!data.length){
+
+box.innerHTML=
+`<div class="item">No conversations yet 💬</div>`;
+
+return;
+}
+
+const ids=[];
+
+data.forEach(m=>{
+
+const other=
+m.sender_id===currentUser.id
+?m.receiver_id
+:m.sender_id;
+
+if(!ids.includes(other)){
+ids.push(other);
+}
+
+});
+
+const {data:profiles}=await db
+.from("Profiles")
+.select("*")
+.in("user_id",ids);
+
+box.innerHTML=ids.map(id=>{
+
+const user=
+(profiles||[]).find(p=>p.user_id===id);
+
+if(!user)return"";
+
+return`
+
+<div class="chat-user"
+onclick="openConversationById('${id}')">
+
+<div class="avatar">
+${
+user.avatar_url
+?`<img src="${escapeHTML(user.avatar_url)}">`
+:"👤"
+}
+</div>
+
+<span>
+<strong>
+${escapeHTML(
+user.display_name||
+user.username||
+"Player"
+)}
+</strong>
+
+<br>
+
+<small class="muted">
+@${escapeHTML(user.username||"user")}
+</small>
+</span>
+
+</div>
+
+`;
+
+}).join("");
+}
+
+
+async function openConversationById(id){
+
+const {data}=await db
+.from("Profiles")
+.select("*")
+.eq("user_id",id)
+.single();
+
+if(data){
+openConversation(data);
+}
+}
+
+
+async function openConversation(user){
+
+activeChatUser=user;
+
+document.getElementById("chatHeader").innerHTML=`
+
+<div style="display:flex;align-items:center;gap:10px">
+
+<div class="avatar">
+
+${
+user.avatar_url
+?`<img src="${escapeHTML(user.avatar_url)}">`
+:"👤"
+}
+
+</div>
+
+<div>
+${escapeHTML(
+user.display_name||
+user.username||
+"Player"
+)}
+
+<br>
+
+<small class="muted">
+@${escapeHTML(user.username||"user")}
+</small>
+
+</div>
+
+</div>
+`;
+
+await loadConversationMessages();
+}
+
+
+async function loadConversationMessages(){
+
+if(!activeChatUser)return;
+
+const box=document.getElementById("chatMessages");
+
+const a=currentUser.id;
+const b=activeChatUser.user_id;
+
+const {data,error}=await db
+.from("messages")
+.select("*")
+.or(
+`and(sender_id.eq.${a},receiver_id.eq.${b}),and(sender_id.eq.${b},receiver_id.eq.${a})`
+)
+.order("created_at",{ascending:true});
+
+if(error){
+
+box.innerHTML=
+`<div class="muted">Unable to load conversation.</div>`;
+
+console.error(error);
+return;
+}
+
+if(!data||!data.length){
+
+box.innerHTML=
+`<div class="muted" style="text-align:center;margin:auto">
+No messages yet. Say hello 👋
+</div>`;
+
+return;
+}
+
+box.innerHTML=data.map(m=>`
+
+<div class="bubble ${m.sender_id===currentUser.id?"me":"them"}">
+
+${escapeHTML(m.content)}
+
+<span class="chat-time">
+${new Date(m.created_at).toLocaleTimeString([],{
+hour:"2-digit",
+minute:"2-digit"
+})}
+</span>
+
+</div>
+
+`).join("");
+
+box.scrollTop=box.scrollHeight;
+}
+
+
+function handleChatKey(e){
+
+if(e.key==="Enter"&&!e.shiftKey){
+
+e.preventDefault();
+sendChatMessage();
+
+}
+}
+
+
+async function sendChatMessage(){
+
+if(!activeChatUser){
+return;
+}
+
+const input=
+document.getElementById("chatInput");
+
+const content=input.value.trim();
+
+if(!content)return;
+
+const {error}=await db
+.from("messages")
+.insert({
+
+sender_id:currentUser.id,
+receiver_id:activeChatUser.user_id,
+content
+
+});
+
+if(error){
+
+alert(error.message);
+return;
+}
+
+input.value="";
+
+await loadConversationMessages();
+await loadConversations();
+}
+
+
+/* REALTIME */
+
+function setupRealtime(){
+
+if(realtimeChannel){
+db.removeChannel(realtimeChannel);
+}
+
+realtimeChannel=
+db.channel("grand-market-messages")
+.on(
+"postgres_changes",
+{
+event:"INSERT",
+schema:"public",
+table:"messages"
+},
+payload=>{
+
+const m=payload.new;
+
+if(
+m.sender_id===currentUser.id||
+m.receiver_id===currentUser.id
+){
+
+loadConversations();
+
+if(
+activeChatUser&&
+(
+m.sender_id===activeChatUser.user_id||
+m.receiver_id===activeChatUser.user_id
+)
+){
+
+loadConversationMessages();
+
+}
+
+}
+
+}
+)
+.subscribe();
+}
+
+
+/* TEAM */
+
+function buildTeam(){
+
+teamMembers=
+allMembers.filter(member=>
+
+String(member.role||"")
+.toLowerCase().includes("owner")||
+
+String(member.role||"")
+.toLowerCase().includes("admin")||
+
+String(member.role||"")
+.toLowerCase().includes("moderator")||
+
+String(member.role||"")
+.toLowerCase().includes("vip")
+
+);
+
+if(!teamMembers.length){
+
+teamMembers=[
+{
+user_id:null,
+display_name:"Grand Market Team",
+username:"grandmarket",
+role:"Administrator",
+bio:"Welcome to Grand Market.",
+avatar_url:null
+}
+];
+
+}
+
+renderTeam();
+
+clearInterval(teamTimer);
+
+teamTimer=setInterval(
+nextTeam,
+5000
+);
+
+enableTeamSwipe();
+}
+
+
+function renderTeam(){
+
+const track=
+document.getElementById("teamTrack");
+
+track.innerHTML=
+teamMembers.map(member=>`
+
+<div class="team-slide">
+
+<div class="team-avatar">
+
+${
+member.avatar_url
+?`<img src="${escapeHTML(member.avatar_url)}">`
+:"🛡️"
+}
+
+</div>
+
+<h2>
+${escapeHTML(
+member.display_name||
+member.username||
+"Team Member"
+)}
+</h2>
+
+${roleBadge(member.role)}
+
+<p class="muted" style="margin-top:12px;max-width:500px">
+${escapeHTML(
+member.bio||
+"Grand Market Team member."
+)}
+</p>
+
+${
+member.user_id
+?
+`
+<button
+class="btn green"
+style="margin-top:18px"
+onclick="chatWithTeamMember('${member.user_id}')"
+>
+💬 Chat with ${escapeHTML(
+member.display_name||
+member.username||
+"Team"
+)}
+</button>
+`
+:""
+}
+
+</div>
+
+`).join("");
+
+updateTeamPosition();
+}
+
+
+function updateTeamPosition(){
+
+const track=
+document.getElementById("teamTrack");
+
+track.style.transform=
+`translateX(-${teamIndex*100}%)`;
+}
+
+
+function nextTeam(){
+
+if(!teamMembers.length)return;
+
+teamIndex=
+(teamIndex+1)%teamMembers.length;
+
+updateTeamPosition();
+}
+
+
+function previousTeam(){
+
+if(!teamMembers.length)return;
+
+teamIndex=
+(teamIndex-1+teamMembers.length)%
+teamMembers.length;
+
+updateTeamPosition();
+}
+
+
+async function chatWithTeamMember(id){
+
+const user=
+allMembers.find(m=>m.user_id===id);
+
+if(!user)return;
+
+activeChatUser=user;
+
+openPageById("messages");
+
+await loadConversations();
+openConversation(user);
+}
+
+
+/* SWIPE */
+
+function enableTeamSwipe(){
+
+const area=
+document.getElementById("teamShowcase");
+
+let startX=0;
+
+area.addEventListener("touchstart",e=>{
+startX=e.touches[0].clientX;
+},{passive:true});
+
+area.addEventListener("touchend",e=>{
+
+const endX=e.changedTouches[0].clientX;
+const diff=endX-startX;
+
+if(Math.abs(diff)>50){
+
+if(diff<0)nextTeam();
+else previousTeam();
+
+}
+
+},{passive:true});
+}
+
+
+/* GROUPS */
+
+async function loadGroups(){
+
+const {data,error}=await db
+.from("groups")
+.select("*")
+.order("created_at",{ascending:false});
+
+const box=document.getElementById("groupsList");
+
+if(error){
+
+box.innerHTML=
+`<div class="card">Groups unavailable.</div>`;
+
+return;
+}
+
+if(!data||!data.length){
+
+box.innerHTML=
+`<div class="card">
+<h2>👥 No groups yet</h2>
+<p class="muted">Groups will appear here when created.</p>
+</div>`;
+
+return;
+}
+
+box.innerHTML=data.map(group=>`
+
+<div class="card">
+
+<h2>
+${escapeHTML(group.icon||"👥")}
+${escapeHTML(group.name)}
+</h2>
+
+<p class="muted" style="margin-top:8px">
+${escapeHTML(
+group.description||
+"Grand Market community"
+)}
+</p>
+
+<button
+class="btn green"
+onclick="joinGroup('${group.id}')">
+Join Group
+</button>
+
+</div>
+
+`).join("");
+}
+
+
+async function joinGroup(id){
+
+const {error}=await db
+.from("group_members")
+.insert({
+group_id:id,
+user_id:currentUser.id
+});
+
+if(error){
+
+alert(
+error.code==="23505"
+?"You are already in this group."
+:error.message
+);
+
+return;
+}
+
+alert("Joined group successfully 👥");
+}
+
+
+/* MARKET */
+
+function toggleListing(){
+
+document
+.getElementById("listingForm")
+.classList.toggle("hidden");
+
+}
+
+
+async function createListing(){
+
+const title=
+document.getElementById("listingTitle").value.trim();
+
+const description=
+document.getElementById("listingDescription").value.trim();
+
+const price=
+Number(document.getElementById("listingPrice").value);
+
+const image=
+document.getElementById("listingImage").value.trim();
+
+if(!title||price<0){
+
+alert("Enter a title and valid CP price.");
+return;
+}
+
+const {error}=await db
+.from("listings")
+.insert({
+
+seller_id:currentUser.id,
+title,
+description,
+price_cp:price,
+image_url:image||null
+
+});
+
+if(error){
+
+alert(error.message);
+return;
+}
+
+alert("Listing published 🛒");
+
+document
+.getElementById("listingForm")
+.classList.add("hidden");
+
+await loadListings();
+}
+
+
+async function loadListings(){
+
+const {data,error}=await db
+.from("listings")
+.select("*")
+.eq("status","active")
+.order("created_at",{ascending:false});
+
+const box=document.getElementById("listings");
+
+if(error){
+
+box.innerHTML=
+`<div class="card">Marketplace unavailable.</div>`;
+
+return;
+}
+
+if(!data||!data.length){
+
+box.innerHTML=
+`<div class="card">
+<h2>🛒 Marketplace is empty</h2>
+<p class="muted">Be the first seller.</p>
+</div>`;
+
+return;
+}
+
+box.innerHTML=data.map(l=>`
+
+<div class="card">
+
+${
+l.image_url
+?`<img src="${escapeHTML(l.image_url)}"
+style="width:100%;height:170px;object-fit:cover;border-radius:14px">`
+:""
+}
+
+<h2 style="margin-top:12px">
+${escapeHTML(l.title)}
+</h2>
+
+<p class="muted">
+${escapeHTML(l.description||"")}
+</p>
+
+<div class="cp" style="font-size:28px">
+${Number(l.price_cp).toLocaleString()} CP
+</div>
+
+<button class="btn green">
+💬 Contact Seller
+</button>
+
+</div>
+
+`).join("");
+}
+
+
+/* RATINGS */
+
+async function loadRatings(){
+
+const {data,error}=await db
+.from("ratings")
+.select("*")
+.order("created_at",{ascending:false})
+.limit(50);
+
+const box=document.getElementById("ratingsList");
+
+if(error){
+
+box.innerHTML=
+`<div class="card">Ratings unavailable.</div>`;
+
+return;
+}
+
+if(!data||!data.length){
+
+box.innerHTML=
+`<div class="card">⭐ No ratings yet.</div>`;
+
+return;
+}
+
+box.innerHTML=data.map(r=>`
+
+<div class="card">
+
+<h2>
+${"⭐".repeat(Number(r.rating)||0)}
+</h2>
+
+<p class="muted" style="margin-top:8px">
+${escapeHTML(r.comment||"")}
+</p>
+
+</div>
+
+`).join("");
+}
+
+
+/* GIVEAWAYS */
+
+async function loadGiveaways(){
+
+const {data,error}=await db
+.from("giveaways")
+.select("*")
+.order("created_at",{ascending:false});
+
+const box=document.getElementById("giveawaysList");
+
+if(error){
+
+box.innerHTML=
+`<div class="card">Giveaways unavailable.</div>`;
+
+return;
+}
+
+if(!data||!data.length){
+
+box.innerHTML=
+`<div class="card">🎁 No giveaways yet.</div>`;
+
+return;
+}
+
+box.innerHTML=data.map(g=>`
+
+<div class="card">
+
+<h2>🎁 ${escapeHTML(g.title)}</h2>
+
+<p class="muted" style="margin-top:8px">
+${escapeHTML(g.description||"")}
+</p>
+
+<h3 style="margin-top:12px">
+🏆 ${escapeHTML(g.prize||"Prize")}
+</h3>
+
+<button
+class="btn"
+onclick="enterGiveaway('${g.id}')">
+Enter Giveaway
+</button>
+
+</div>
+
+`).join("");
+}
+
+
+async function enterGiveaway(id){
+
+const {error}=await db
+.from("giveaway_entries")
+.insert({
+giveaway_id:id,
+user_id:currentUser.id
+});
+
+if(error){
+
+alert(
+error.code==="23505"
+?"You already entered this giveaway."
+:error.message
+);
+
+return;
+}
+
+alert("Entry successful 🎁🔥");
+}
+
+
+/* LEADERBOARD */
+
+function loadLeaderboard(){
+
+const box=
+document.getElementById("leaderboardList");
+
+if(!allMembers.length){
+
+box.innerHTML=
+`<div class="item">No members yet.</div>`;
+
+return;
+}
+
+box.innerHTML=
+allMembers.slice(0,10).map((m,i)=>`
+
+<div class="item">
+
+<strong>
+#${i+1}
+${escapeHTML(
+m.display_name||
+m.username||
+"Player"
+)}
+</strong>
+
+<br>
+
+${roleBadge(m.role)}
+
+</div>
+
+`).join("");
+}
+
+
+/* REPORT */
+
+async function submitReport(){
+
+const reason=
+document.getElementById("reportReason").value;
+
+const username=
+document.getElementById("reportUsername").value
+.replace("@","")
+.trim();
+
+const details=
+document.getElementById("reportDetails").value.trim();
+
+const status=
+document.getElementById("reportStatus");
+
+if(!reason||!username||!details){
+
+status.textContent="Complete the report.";
+return;
+}
+
+const target=
+allMembers.find(
+m=>String(m.username||"").toLowerCase()===
+username.toLowerCase()
+);
+
+const {error}=await db
+.from("reports")
+.insert({
+
+reporter_id:currentUser.id,
+reported_user_id:target?target.user_id:null,
+reason,
+details
+
+});
+
+if(error){
+
+status.textContent=error.message;
+return;
+}
+
+status.textContent=
+"Report submitted successfully 🚨";
+}
+
+
+/* NOTIFICATIONS */
+
+async function loadNotifications(){
+
+const {data,error}=await db
+.from("notifications")
+.select("*")
+.eq("user_id",currentUser.id)
+.order("created_at",{ascending:false})
+.limit(30);
+
+const box=
+document.getElementById("notificationsList");
+
+if(error){
+
+box.innerHTML=
+`<div class="item">Notifications unavailable.</div>`;
+
+return;
+}
+
+if(!data||!data.length){
+
+box.innerHTML=
+`<div class="item">No notifications 🔔</div>`;
+
+return;
+}
+
+box.innerHTML=data.map(n=>`
+
+<div class="notification">
+
+<strong>
+${escapeHTML(n.title)}
+</strong>
+
+<p class="muted">
+${escapeHTML(n.message||"")}
+</p>
+
+</div>
+
+`).join("");
+}
+
+
+/* DEPOSIT */
+
+async function submitDeposit(){
+
+const amount=
+Number(document.getElementById("depositAmount").value);
+
+const reference=
+document.getElementById("depositReference").value.trim();
+
+const status=
+document.getElementById("depositStatus");
+
+if(!amount||!reference){
+
+status.textContent=
+"Enter amount and payment reference.";
+
+return;
+}
+
+const cp=amount*1000;
+
+const {error}=await db
+.from("Deposits")
+.insert({
+
+user_id:currentUser.id,
+amount,
+payment_reference:reference,
+status:"pending",
+cp_amount:cp
+
+});
+
+if(error){
+
+status.textContent=error.message;
+return;
+}
+
+status.textContent=
+"Deposit submitted for review ⏳";
+}
+
+
+/* ROLE */
+
+function roleBadge(role){
+
+const value=role||"Grand Member";
+
+const lower=value.toLowerCase();
+
+let css="role-member";
+
+if(lower.includes("owner"))css="role-owner";
+else if(lower.includes("admin"))css="role-admin";
+else if(lower.includes("moderator"))css="role-mod";
+else if(lower.includes("vip"))css="role-vip";
+else if(lower.includes("premium"))css="role-premium";
+else if(lower.includes("seller"))css="role-seller";
+
+return`
+<span class="role ${css}">
+${escapeHTML(value.toUpperCase())}
+</span>
+`;
+}
+
+
+/* NAVIGATION */
+
+function openPage(id,button){
+
+document
+.querySelectorAll(".page")
+.forEach(p=>p.classList.remove("active"));
+
+const target=document.getElementById(id);
+
+if(target)target.classList.add("active");
+
+document
+.querySelectorAll(".nav")
+.forEach(n=>n.classList.remove("active"));
+
+if(button)button.classList.add("active");
+}
+
+
+function openPageById(id){
+
+openPage(id);
+
+}
+
+
+/* LOGOUT — FIXED */
+
+async function logout(){
+
+try{
+
+await db.auth.signOut();
+
+currentUser=null;
+currentProfile=null;
+activeChatUser=null;
+
+if(realtimeChannel){
+await db.removeChannel(realtimeChannel);
+realtimeChannel=null;
+}
+
+document.getElementById("app").style.display="none";
+document.getElementById("auth").style.display="flex";
+
+showLogin();
+
+document.getElementById("loginEmail").value="";
+document.getElementById("loginPassword").value="";
+
+document.getElementById("loginMsg").textContent=
+"You have been logged out successfully.";
+
+}catch(error){
+
+console.error("Logout error:",error);
+
+alert(
+"Logout failed. Please try again."
+);
+
+}
+
+}
+
+
+/* ESCAPE HTML */
+
+function escapeHTML(value){
+
+return String(value??"")
+.replace(/&/g,"&amp;")
+.replace(/</g,"&lt;")
+.replace(/>/g,"&gt;")
+.replace(/"/g,"&quot;")
+.replace(/'/g,"&#039;");
+
+}
+
+
+/* SESSION */
+
+async function checkSession(){
+
+const {data}=await db.auth.getSession();
+
+if(data.session){
+
+currentUser=data.session.user;
+
+await startApp();
+
+}
+
+}
+
+
+/* AUTH STATE */
+
+db.auth.onAuthStateChange(
+async(event,session)=>{
+
+if(event==="SIGNED_OUT"){
+
+document.getElementById("app").style.display="none";
+document.getElementById("auth").style.display="flex";
+
+currentUser=null;
+currentProfile=null;
+
+}
+
+}
+);
+
+checkSession();
+
+</script>
+
+</body>
+  </html>
