@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Grand Market | RP Marketplace</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background: #0b0d12;
+      color: white;
+    }
+
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px 7%;
+      background: #11141b;
+      border-bottom: 1px solid #252a35;
+    }
+
+    .logo {
+      font-size: 22px;
+      font-weight: bold;
+    }
+
+    .logo span {
+      color: #4ade80;
+    }
+
+    nav a {
+      color: #aaa;
+      text-decoration: none;
+      margin-left: 20px;
+    }
+
+    .hero {
+      padding: 70px 7%;
+      text-align: center;
+    }
+
+    .hero h1 {
+      font-size: 46px;
+      margin-bottom: 15px;
+    }
+
+    .hero h1 span {
+      color: #4ade80;
+    }
+
+    .hero p {
+      color: #aaa;
+      font-size: 18px;
+      max-width: 650px;
+      margin: auto;
+      line-height: 1.6;
+    }
+
+    .buttons {
+      margin-top: 30px;
+    }
+
+    button {
+      padding: 13px 24px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      margin: 5px;
+    }
+
+    .primary {
+      background: #4ade80;
+      color: #07100b;
+    }
+
+    .secondary {
+      background: #1b2029;
+      color: white;
+      border: 1px solid #303744;
+    }
+
+    .section {
+      padding: 40px 7%;
+    }
+
+    .section h2 {
+      margin-bottom: 20px;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+    }
+
+    .card {
+      background: #141820;
+      border: 1px solid #252b36;
+      border-radius: 12px;
+      padding: 25px;
+    }
+
+    .card h3 {
+      margin-bottom: 10px;
+    }
+
+    .card p {
+      color: #999;
+      line-height: 1.5;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .modal-box {
+      background: #141820;
+      width: 100%;
+      max-width: 450px;
+      padding: 30px;
+      border-radius: 15px;
+      border: 1px solid #303744;
+    }
+
+    .modal-box h2 {
+      margin-bottom: 20px;
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      padding: 13px;
+      margin-bottom: 12px;
+      border-radius: 8px;
+      border: 1px solid #303744;
+      background: #0b0d12;
+      color: white;
+      outline: none;
+    }
+
+    textarea {
+      min-height: 90px;
+      resize: vertical;
+    }
+
+    .close {
+      float: right;
+      cursor: pointer;
+      color: #aaa;
+      font-size: 20px;
+    }
+
+    .message {
+      margin-top: 10px;
+      color: #4ade80;
+      font-size: 14px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 30px;
+      color: #777;
+      border-top: 1px solid #252a35;
+      margin-top: 40px;
+    }
+
+    @media (max-width: 600px) {
+      .hero h1 {
+        font-size: 35px;
+      }
+
+      nav a {
+        display: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<nav>
+  <div class="logo">
+    GRAND <span>MARKET</span>
+  </div>
+
+  <div>
+    <a href="#">Marketplace</a>
+    <a href="#">Wallet</a>
+    <a href="#">Chat</a>
+    <a href="#">Profile</a>
+  </div>
+</nav>
+
+<section class="hero">
+
+  <h1>
+    Welcome to <span>Grand Market</span>
+  </h1>
+
+  <p>
+    The marketplace for your RP community.
+    Buy, sell, chat with players and manage your RP currency
+    from one place.
+  </p>
+
+  <div class="buttons">
+    <button class="primary" onclick="openRegister()">
+      Create Account
+    </button>
+
+    <button class="secondary" onclick="openLogin()">
+      Login
+    </button>
+  </div>
+
+</section>
+
+<section class="section">
+
+  <h2>What you can do</h2>
+
+  <div class="cards">
+
+    <div class="card">
+      <h3>🛒 Marketplace</h3>
+      <p>
+        Buy and sell items with other RP players.
+      </p>
+    </div>
+
+    <div class="card">
+      <h3>💰 RP Wallet</h3>
+      <p>
+        Manage your RP currency and view transactions.
+      </p>
+    </div>
+
+    <div class="card">
+      <h3>💬 Player Chat</h3>
+      <p>
+        Chat privately with buyers and sellers.
+      </p>
+    </div>
+
+    <div class="card">
+      <h3>👤 Profiles</h3>
+      <p>
+        Create your player profile and build your reputation.
+      </p>
+    </div>
+
+  </div>
+
+</section>
+
+<!-- REGISTER -->
+
+<div class="modal" id="registerModal">
+
+  <div class="modal-box">
+
+    <span class="close" onclick="closeRegister()">×</span>
+
+    <h2>Create Account</h2>
+
+    <input
+      type="text"
+      id="username"
+      placeholder="Username"
+    >
+
+    <input
+      type="text"
+      id="displayName"
+      placeholder="Display name"
+    >
+
+    <input
+      type="email"
+      id="registerEmail"
+      placeholder="Email"
+    >
+
+    <input
+      type="password"
+      id="registerPassword"
+      placeholder="Password"
+    >
+
+    <textarea
+      id="bio"
+      placeholder="Tell players about yourself..."
+    ></textarea>
+
+    <button
+      class="primary"
+      onclick="registerUser()"
+    >
+      Create Account
+    </button>
+
+    <div
+      class="message"
+      id="registerMessage"
+    ></div>
+
+  </div>
+
+</div>
+
+<!-- LOGIN -->
+
+<div class="modal" id="loginModal">
+
+  <div class="modal-box">
+
+    <span class="close" onclick="closeLogin()">×</span>
+
+    <h2>Login</h2>
+
+    <input
+      type="email"
+      id="loginEmail"
+      placeholder="Email"
+    >
+
+    <input
+      type="password"
+      id="loginPassword"
+      placeholder="Password"
+    >
+
+    <button
+      class="primary"
+      onclick="loginUser()"
+    >
+      Login
+    </button>
+
+    <div
+      class="message"
+      id="loginMessage"
+    ></div>
+
+  </div>
+
+</div>
+
+<footer>
+  © 2026 Grand Market — RP Marketplace
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+
+const SUPABASE_URL =
+"https://qdnnduidzakdfzhrefnn.supabase.co";
+
+const SUPABASE_KEY =
+"sb_publishable_E5EGBYHgJ3I7-qE-jYeaxQ_aHosDKPe";
+
+const supabaseClient =
+supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+
+/* OPEN REGISTER */
+
+function openRegister() {
+
+  document.getElementById(
+    "registerModal"
+  ).style.display = "flex";
+
+}
+
+
+/* CLOSE REGISTER */
+
+function closeRegister() {
+
+  document.getElementById(
+    "registerModal"
+  ).style.display = "none";
+
+}
+
+
+/* OPEN LOGIN */
+
+function openLogin() {
+
+  document.getElementById(
+    "loginModal"
+  ).style.display = "flex";
+
+}
+
+
+/* CLOSE LOGIN */
+
+function closeLogin() {
+
+  document.getElementById(
+    "loginModal"
+  ).style.display = "none";
+
+}
+
+
+/* REGISTER */
+
+async function registerUser() {
+
+  const username =
+    document.getElementById(
+      "username"
+    ).value.trim();
+
+  const displayName =
+    document.getElementById(
+      "displayName"
+    ).value.trim();
+
+  const email =
+    document.getElementById(
+      "registerEmail"
+    ).value.trim();
+
+  const password =
+    document.getElementById(
+      "registerPassword"
+    ).value;
+
+  const bio =
+    document.getElementById(
+      "bio"
+    ).value.trim();
+
+  const message =
+    document.getElementById(
+      "registerMessage"
+    );
+
+
+  if (
+    !username ||
+    !displayName ||
+    !email ||
+    !password
+  ) {
+
+    message.textContent =
+      "Please fill in all required fields.";
+
+    return;
+
+  }
+
+
+  if (password.length < 6) {
+
+    message.textContent =
+      "Password must be at least 6 characters.";
+
+    return;
+
+  }
+
+
+  message.textContent =
+    "Creating your account...";
+
+
+  const {
+    data,
+    error
+  } =
+    await supabaseClient.auth.signUp({
+
+      email: email,
+
+      password: password
+
+    });
+
+
+  if (error) {
+
+    message.textContent =
+      error.message;
+
+    return;
+
+  }
+
+
+  if (!data.user) {
+
+    message.textContent =
+      "Account creation failed.";
+
+    return;
+
+  }
+
+
+  /*
+    Update the player's profile.
+  */
+
+  const {
+    error: profileError
+  } =
+    await supabaseClient
+      .from("Profiles")
+      .update({
+
+        username: username,
+
+        display_name: displayName,
+
+        bio: bio
+
+      })
+      .eq(
+        "user_id",
+        data.user.id
+      );
+
+
+  if (profileError) {
+
+    message.textContent =
+      "Account created, but profile setup failed: "
+      + profileError.message;
+
+    return;
+
+  }
+
+
+  message.textContent =
+    "Account created successfully!";
+
+
+}
+
+
+/* LOGIN */
+
+async function loginUser() {
+
+  const email =
+    document.getElementById(
+      "loginEmail"
+    ).value.trim();
+
+  const password =
+    document.getElementById(
+      "loginPassword"
+    ).value;
+
+
+  const message =
+    document.getElementById(
+      "loginMessage"
+    );
+
+
+  if (!email || !password) {
+
+    message.textContent =
+      "Enter your email and password.";
+
+    return;
+
+  }
+
+
+  message.textContent =
+    "Logging in...";
+
+
+  const {
+    error
+  } =
+    await supabaseClient.auth
+      .signInWithPassword({
+
+        email: email,
+
+        password: password
+
+      });
+
+
+  if (error) {
+
+    message.textContent =
+      error.message;
+
+    return;
+
+  }
+
+
+  message.textContent =
+    "Login successful!";
+
+
+  setTimeout(() => {
+
+    closeLogin();
+
+  }, 1000);
+
+}
+
+</script>
+
+</body>
+</html>
