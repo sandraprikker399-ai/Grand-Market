@@ -1,0 +1,7736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Grand Market</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link
+href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800&display=swap"
+rel="stylesheet">
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+
+/* =====================================================
+   BASE
+===================================================== */
+
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
+:root{
+
+  --bg:#060812;
+  --card:#101426;
+  --card2:#171b30;
+
+  --white:#ffffff;
+  --muted:#929bb4;
+
+  --green:#39f59a;
+  --cyan:#20d9ff;
+  --blue:#657cff;
+  --purple:#a855f7;
+  --pink:#ff4fa3;
+  --orange:#ff8a3d;
+  --gold:#ffd45a;
+  --red:#ff5264;
+
+}
+
+html{
+  scroll-behavior:smooth;
+}
+
+body{
+
+  font-family:"Outfit","Inter",sans-serif;
+
+  background:var(--bg);
+
+  color:#ffffff;
+
+  min-height:100vh;
+
+  overflow-x:hidden;
+
+}
+
+body::before{
+
+  content:"";
+
+  position:fixed;
+
+  inset:0;
+
+  z-index:-2;
+
+  pointer-events:none;
+
+  background:
+    radial-gradient(
+      circle at 5% 5%,
+      rgba(168,85,247,.22),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 95% 5%,
+      rgba(32,217,255,.18),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 50% 100%,
+      rgba(57,245,154,.12),
+      transparent 35%
+    );
+
+}
+
+button,
+input,
+textarea,
+select{
+
+  font-family:"Outfit","Inter",sans-serif;
+
+}
+
+button{
+
+  border:0;
+
+  cursor:pointer;
+
+}
+
+input,
+textarea,
+select{
+
+  width:100%;
+
+  padding:13px 14px;
+
+  margin:7px 0;
+
+  border-radius:12px;
+
+  border:1px solid rgba(255,255,255,.10);
+
+  background:#090c17;
+
+  color:white;
+
+  outline:none;
+
+  font-size:14px;
+
+  font-weight:500;
+
+}
+
+input::placeholder,
+textarea::placeholder{
+
+  color:#687188;
+
+}
+
+input:focus,
+textarea:focus,
+select:focus{
+
+  border-color:var(--cyan);
+
+  box-shadow:
+    0 0 0 3px rgba(32,217,255,.08);
+
+}
+
+textarea{
+
+  min-height:100px;
+
+  resize:vertical;
+
+}
+
+.hidden{
+
+  display:none!important;
+
+}
+
+.muted{
+
+  color:var(--muted);
+
+}
+
+.btn{
+
+  display:inline-flex;
+
+  align-items:center;
+
+  justify-content:center;
+
+  gap:7px;
+
+  padding:11px 16px;
+
+  border-radius:12px;
+
+  color:white;
+
+  font-weight:700;
+
+  font-size:13px;
+
+  background:
+    linear-gradient(
+      135deg,
+      var(--purple),
+      var(--blue),
+      var(--cyan)
+    );
+
+  transition:.2s;
+
+}
+
+.btn:hover{
+
+  transform:translateY(-2px);
+
+  filter:brightness(1.12);
+
+}
+
+.btn.green{
+
+  color:#03140d;
+
+  background:
+    linear-gradient(
+      135deg,
+      var(--green),
+      var(--cyan)
+    );
+
+}
+
+.btn.orange{
+
+  background:
+    linear-gradient(
+      135deg,
+      var(--orange),
+      var(--pink)
+    );
+
+}
+
+.btn.red{
+
+  background:
+    linear-gradient(
+      135deg,
+      var(--red),
+      var(--purple)
+    );
+
+}
+
+.full{
+
+  width:100%;
+
+}
+
+
+/* =====================================================
+   AUTH
+===================================================== */
+
+.auth{
+
+  min-height:100vh;
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:center;
+
+  padding:20px;
+
+}
+
+.auth-box{
+
+  width:100%;
+
+  max-width:450px;
+
+  padding:32px;
+
+  border-radius:26px;
+
+  background:rgba(12,15,28,.95);
+
+  border:1px solid rgba(255,255,255,.10);
+
+  box-shadow:
+    0 30px 100px rgba(0,0,0,.55);
+
+}
+
+.logo{
+
+  font-size:21px;
+
+  font-weight:800;
+
+  letter-spacing:-.5px;
+
+}
+
+.logo span{
+
+  background:
+    linear-gradient(
+      90deg,
+      var(--green),
+      var(--cyan),
+      var(--purple),
+      var(--pink),
+      var(--orange)
+    );
+
+  -webkit-background-clip:text;
+
+  background-clip:text;
+
+  color:transparent;
+
+}
+
+.auth-box h1{
+
+  margin:27px 0 7px;
+
+  font-size:26px;
+
+  font-weight:700;
+
+}
+
+
+/* =====================================================
+   APP
+===================================================== */
+
+#app{
+
+  display:none;
+
+}
+
+.sidebar{
+
+  position:fixed;
+
+  top:0;
+
+  left:0;
+
+  bottom:0;
+
+  width:250px;
+
+  padding:18px 12px;
+
+  overflow-y:auto;
+
+  background:rgba(6,8,17,.96);
+
+  border-right:1px solid rgba(255,255,255,.08);
+
+  z-index:100;
+
+}
+
+.sidebar .logo{
+
+  padding:10px 12px 24px;
+
+}
+
+.nav{
+
+  width:100%;
+
+  padding:12px;
+
+  margin:3px 0;
+
+  text-align:left;
+
+  color:#aab3c8;
+
+  background:transparent;
+
+  border-radius:12px;
+
+  font-weight:600;
+
+  font-size:14px;
+
+  transition:.2s;
+
+}
+
+.nav:hover,
+.nav.active{
+
+  color:white;
+
+  background:
+    linear-gradient(
+      100deg,
+      rgba(168,85,247,.28),
+      rgba(32,217,255,.13),
+      rgba(57,245,154,.08)
+    );
+
+}
+
+.main{
+
+  margin-left:250px;
+
+}
+
+.header{
+
+  height:72px;
+
+  position:sticky;
+
+  top:0;
+
+  z-index:80;
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:space-between;
+
+  padding:0 28px;
+
+  background:rgba(7,9,18,.84);
+
+  backdrop-filter:blur(18px);
+
+  border-bottom:1px solid rgba(255,255,255,.08);
+
+}
+
+.user-mini{
+
+  display:flex;
+
+  align-items:center;
+
+  gap:10px;
+
+}
+
+.avatar{
+
+  width:42px;
+
+  height:42px;
+
+  border-radius:50%;
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:center;
+
+  overflow:hidden;
+
+  flex-shrink:0;
+
+  background:
+    linear-gradient(
+      135deg,
+      var(--purple),
+      var(--cyan)
+    );
+
+  font-weight:800;
+
+  position:relative;
+
+}
+
+.avatar::after{
+
+  content:"";
+
+  position:absolute;
+
+  inset:-3px;
+
+  border-radius:50%;
+
+  border:2px solid transparent;
+
+  background:
+    linear-gradient(
+      90deg,
+      var(--green),
+      var(--cyan),
+      var(--purple),
+      var(--pink),
+      var(--green)
+    )
+    border-box;
+
+  -webkit-mask:
+    linear-gradient(#fff 0 0) padding-box,
+    linear-gradient(#fff 0 0);
+
+  -webkit-mask-composite:xor;
+
+  mask-composite:exclude;
+
+  animation:avatarGlow 3s linear infinite;
+
+  pointer-events:none;
+
+}
+
+.avatar img,
+.big-avatar img{
+
+  width:100%;
+
+  height:100%;
+
+  object-fit:cover;
+
+}
+
+@keyframes avatarGlow{
+
+  0%{
+    transform:rotate(0deg);
+  }
+
+  100%{
+    transform:rotate(360deg);
+  }
+
+}
+
+.gradient-name{
+
+  font-weight:800;
+
+  background:
+    linear-gradient(
+      90deg,
+      var(--green),
+      var(--cyan),
+      var(--purple),
+      var(--pink),
+      var(--orange),
+      var(--green)
+    );
+
+  background-size:300% auto;
+
+  -webkit-background-clip:text;
+
+  background-clip:text;
+
+  color:transparent;
+
+  animation:nameGradient 5s linear infinite;
+
+}
+
+@keyframes nameGradient{
+
+  to{
+    background-position:300% center;
+  }
+
+}
+
+.content{
+
+  max-width:1450px;
+
+  margin:auto;
+
+  padding:28px;
+
+}
+
+.page{
+
+  display:none;
+
+}
+
+.page.active{
+
+  display:block;
+
+}
+
+
+/* =====================================================
+   HERO
+===================================================== */
+
+.hero{
+
+  padding:30px;
+
+  border-radius:24px;
+
+  border:1px solid rgba(255,255,255,.10);
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(168,85,247,.28),
+      rgba(101,124,255,.20),
+      rgba(32,217,255,.17),
+      rgba(57,245,154,.12)
+    );
+
+}
+
+.hero h1{
+
+  font-size:28px;
+
+  margin-bottom:8px;
+
+  font-weight:700;
+
+}
+
+.balance{
+
+  margin-top:18px;
+
+  padding:23px;
+
+  border-radius:21px;
+
+  border:1px solid rgba(255,255,255,.10);
+
+  background:
+    linear-gradient(
+      135deg,
+      #123c2b,
+      #14354c,
+      #29204b,
+      #421d40
+    );
+
+}
+
+.cp{
+
+  margin:8px 0;
+
+  font-size:34px;
+
+  font-weight:800;
+
+  background:
+    linear-gradient(
+      90deg,
+      var(--green),
+      var(--cyan),
+      var(--gold)
+    );
+
+  -webkit-background-clip:text;
+
+  background-clip:text;
+
+  color:transparent;
+
+}
+
+
+/* =====================================================
+   QUICK ACTIONS
+===================================================== */
+
+.quick{
+
+  display:grid;
+
+  grid-template-columns:
+    repeat(auto-fit,minmax(140px,1fr));
+
+  gap:13px;
+
+  margin-top:18px;
+
+}
+
+.quick button{
+
+  min-height:105px;
+
+  border-radius:18px;
+
+  color:white;
+
+  font-weight:700;
+
+  font-size:14px;
+
+  border:1px solid rgba(255,255,255,.09);
+
+  transition:.25s;
+
+}
+
+.quick button:hover{
+
+  transform:translateY(-5px);
+
+  box-shadow:
+    0 12px 35px rgba(0,0,0,.25);
+
+}
+
+.quick button:nth-child(1){
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(168,85,247,.25),
+      rgba(32,217,255,.10)
+    );
+
+}
+
+.quick button:nth-child(2){
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(57,245,154,.24),
+      rgba(32,217,255,.10)
+    );
+
+}
+
+.quick button:nth-child(3){
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(101,124,255,.25),
+      rgba(168,85,247,.12)
+    );
+
+}
+
+.quick button:nth-child(4){
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255,79,163,.25),
+      rgba(168,85,247,.12)
+    );
+
+}
+
+.quick button:nth-child(5){
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(32,217,255,.22),
+      rgba(101,124,255,.12)
+    );
+
+}
+
+.quick button:nth-child(6){
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255,138,61,.25),
+      rgba(255,79,163,.12)
+    );
+
+}
+
+.quick button:nth-child(7){
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255,212,90,.25),
+      rgba(255,138,61,.12)
+    );
+
+}
+
+.quick button:nth-child(8){
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255,82,100,.25),
+      rgba(168,85,247,.12)
+    );
+
+}
+
+
+/* =====================================================
+   TEAM
+===================================================== */
+
+.team-slider{
+
+  margin-top:24px;
+
+  overflow:hidden;
+
+  border-radius:23px;
+
+  border:1px solid rgba(255,255,255,.09);
+
+  background:rgba(12,15,27,.72);
+
+}
+
+.team-track{
+
+  display:flex;
+
+  width:max-content;
+
+  animation:
+    teamSlide 28s linear infinite;
+
+}
+
+.team-slider:hover .team-track{
+
+  animation-play-state:paused;
+
+}
+
+@keyframes teamSlide{
+
+  from{
+    transform:translateX(0);
+  }
+
+  to{
+    transform:translateX(-50%);
+  }
+
+}
+
+.team-card{
+
+  width:300px;
+
+  margin:10px;
+
+  padding:18px;
+
+  border-radius:20px;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(168,85,247,.20),
+      rgba(32,217,255,.10),
+      rgba(57,245,154,.08)
+    );
+
+  border:1px solid rgba(255,255,255,.09);
+
+}
+
+.team-card-inner{
+
+  display:flex;
+
+  align-items:center;
+
+  gap:13px;
+
+}
+
+.team-card .avatar{
+
+  width:55px;
+
+  height:55px;
+
+}
+
+
+/* =====================================================
+   CARDS
+===================================================== */
+
+.grid{
+
+  display:grid;
+
+  grid-template-columns:
+    repeat(auto-fit,minmax(210px,1fr));
+
+  gap:15px;
+
+  margin-top:18px;
+
+}
+
+.card{
+
+  padding:20px;
+
+  border-radius:19px;
+
+  background:rgba(17,21,37,.88);
+
+  border:1px solid rgba(255,255,255,.09);
+
+  backdrop-filter:blur(12px);
+
+}
+
+.card:nth-child(4n+1){
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(168,85,247,.20),
+      rgba(17,21,37,.90)
+    );
+
+}
+
+.card:nth-child(4n+2){
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(32,217,255,.16),
+      rgba(17,21,37,.90)
+    );
+
+}
+
+.card:nth-child(4n+3){
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(57,245,154,.13),
+      rgba(17,21,37,.90)
+    );
+
+}
+
+.card:nth-child(4n+4){
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255,79,163,.16),
+      rgba(17,21,37,.90)
+    );
+
+}
+
+
+/* =====================================================
+   MEMBERS
+===================================================== */
+
+.member{
+
+  display:flex;
+
+  align-items:center;
+
+  gap:13px;
+
+}
+
+.member-info{
+
+  flex:1;
+
+  min-width:0;
+
+}
+
+.member-name{
+
+  font-weight:800;
+
+}
+
+.member-user{
+
+  margin-top:4px;
+
+  font-size:12px;
+
+  color:var(--muted);
+
+}
+
+.online-status{
+
+  display:flex;
+
+  align-items:center;
+
+  gap:6px;
+
+  margin-top:5px;
+
+  font-size:11px;
+
+  font-weight:700;
+
+}
+
+.status-dot{
+
+  width:8px;
+
+  height:8px;
+
+  border-radius:50%;
+
+}
+
+.status-online{
+
+  color:var(--green);
+
+}
+
+.status-online .status-dot{
+
+  background:var(--green);
+
+  box-shadow:
+    0 0 10px var(--green);
+
+}
+
+.status-offline{
+
+  color:#737b91;
+
+}
+
+.status-offline .status-dot{
+
+  background:#737b91;
+
+}
+
+
+/* =====================================================
+   ROLES
+===================================================== */
+
+.role{
+
+  display:inline-block;
+
+  padding:5px 10px;
+
+  border-radius:20px;
+
+  font-size:10px;
+
+  font-weight:800;
+
+  margin-top:7px;
+
+}
+
+.role-owner{
+
+  background:
+    linear-gradient(
+      90deg,
+      #ffd45a,
+      #ff8a3d
+    );
+
+  color:#160d00;
+
+}
+
+.role-admin{
+
+  background:
+    linear-gradient(
+      90deg,
+      #ff5264,
+      #ff8a3d
+    );
+
+}
+
+.role-mod{
+
+  background:
+    linear-gradient(
+      90deg,
+      #657cff,
+      #20d9ff
+    );
+
+}
+
+.role-vip{
+
+  background:
+    linear-gradient(
+      90deg,
+      #a855f7,
+      #ff4fa3
+    );
+
+}
+
+.role-premium{
+
+  background:
+    linear-gradient(
+      90deg,
+      #20d9ff,
+      #a855f7
+    );
+
+}
+
+.role-seller{
+
+  background:
+    linear-gradient(
+      90deg,
+      #39f59a,
+      #20d9ff
+    );
+
+  color:#03140d;
+
+}
+
+.role-member{
+
+  background:
+    linear-gradient(
+      90deg,
+      #555d70,
+      #8d95a8
+    );
+
+}
+
+
+/* =====================================================
+   PROFILE
+===================================================== */
+
+.cover{
+
+  height:190px;
+
+  border-radius:23px;
+
+  background:
+    linear-gradient(
+      120deg,
+      #a855f7,
+      #657cff,
+      #20d9ff,
+      #39f59a,
+      #ffd45a,
+      #ff4fa3
+    );
+
+  background-size:300% 300%;
+
+  animation:coverMove 9s ease infinite;
+
+  overflow:hidden;
+
+}
+
+.cover.has-image{
+
+  background-size:cover;
+
+  background-position:center;
+
+}
+
+@keyframes coverMove{
+
+  0%{
+    background-position:0% 50%;
+  }
+
+  50%{
+    background-position:100% 50%;
+  }
+
+  100%{
+    background-position:0% 50%;
+  }
+
+}
+
+.profile{
+
+  margin-top:-48px;
+
+  position:relative;
+
+}
+
+.big-avatar{
+
+  width:100px;
+
+  height:100px;
+
+  border-radius:50%;
+
+  border:5px solid #111525;
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:center;
+
+  overflow:hidden;
+
+  font-size:30px;
+
+  background:
+    linear-gradient(
+      135deg,
+      var(--purple),
+      var(--cyan)
+    );
+
+  position:relative;
+
+}
+
+.big-avatar::before{
+
+  content:"";
+
+  position:absolute;
+
+  inset:-7px;
+
+  border-radius:50%;
+
+  background:
+    conic-gradient(
+      var(--green),
+      var(--cyan),
+      var(--purple),
+      var(--pink),
+      var(--orange),
+      var(--green)
+    );
+
+  z-index:-1;
+
+  animation:profileLight 3s linear infinite;
+
+  filter:blur(3px);
+
+}
+
+@keyframes profileLight{
+
+  to{
+    transform:rotate(360deg);
+  }
+
+}
+
+.profile-actions{
+
+  display:flex;
+
+  flex-wrap:wrap;
+
+  gap:8px;
+
+  margin-top:16px;
+
+}
+
+
+/* =====================================================
+   ACCOUNT CARD
+===================================================== */
+
+.account-card{
+
+  margin-top:18px;
+
+  padding:23px;
+
+  border-radius:20px;
+
+  position:relative;
+
+  overflow:hidden;
+
+  background:
+    linear-gradient(
+      145deg,
+      #141b31,
+      #0b1020 55%,
+      #18243b
+    );
+
+  border:1px solid rgba(32,217,255,.22);
+
+  box-shadow:
+    0 20px 45px rgba(0,0,0,.40),
+    0 12px 30px rgba(32,217,255,.08),
+    inset 0 1px 0 rgba(255,255,255,.08);
+
+}
+
+.account-card::before{
+
+  content:"";
+
+  position:absolute;
+
+  width:180px;
+
+  height:180px;
+
+  right:-80px;
+
+  top:-90px;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(32,217,255,.30),
+      transparent 70%
+    );
+
+  filter:blur(10px);
+
+}
+
+.account-card::after{
+
+  content:"";
+
+  position:absolute;
+
+  left:0;
+
+  right:0;
+
+  bottom:0;
+
+  height:3px;
+
+  background:
+    linear-gradient(
+      90deg,
+      var(--green),
+      var(--cyan),
+      var(--purple),
+      var(--pink)
+    );
+
+  box-shadow:
+    0 0 20px rgba(32,217,255,.55);
+
+}
+
+.account-row{
+
+  position:relative;
+
+  z-index:2;
+
+  padding:10px 0;
+
+  border-bottom:1px solid rgba(255,255,255,.07);
+
+}
+
+.account-row:last-child{
+
+  border-bottom:0;
+
+}
+
+.account-label{
+
+  display:block;
+
+  font-size:11px;
+
+  color:#7f8aa4;
+
+  text-transform:uppercase;
+
+  letter-spacing:1px;
+
+  font-weight:700;
+
+  margin-bottom:3px;
+
+}
+
+.account-value{
+
+  font-size:15px;
+
+  font-weight:600;
+
+  letter-spacing:.2px;
+
+}
+
+.account-number{
+
+  font-size:21px;
+
+  font-weight:800;
+
+  letter-spacing:2px;
+
+  background:
+    linear-gradient(
+      90deg,
+      var(--green),
+      var(--cyan),
+      #ffffff
+    );
+
+  -webkit-background-clip:text;
+
+  background-clip:text;
+
+  color:transparent;
+
+}
+
+
+/* =====================================================
+   REPORTS / ADMIN
+===================================================== */
+
+.admin-box{
+
+  border:1px solid rgba(255,82,100,.22);
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255,82,100,.10),
+      rgba(168,85,247,.10)
+    );
+
+}
+
+.report-card{
+
+  padding:18px;
+
+  border-radius:17px;
+
+  background:#0c101c;
+
+  border:1px solid rgba(255,255,255,.08);
+
+}
+
+.report-pending{
+
+  color:var(--orange);
+
+}
+
+.report-resolved{
+
+  color:var(--green);
+
+}
+
+
+/* =====================================================
+   LISTS
+===================================================== */
+
+.list{
+
+  display:flex;
+
+  flex-direction:column;
+
+  gap:10px;
+
+  margin-top:18px;
+
+}
+
+.item{
+
+  padding:15px;
+
+  border-radius:14px;
+
+  background:#0d111e;
+
+  border:1px solid rgba(255,255,255,.08);
+
+}
+
+.notification{
+
+  padding:16px;
+
+  border-radius:15px;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(168,85,247,.18),
+      rgba(32,217,255,.10)
+    );
+
+  border:1px solid rgba(255,255,255,.09);
+
+}
+
+
+/* =====================================================
+   CHAT
+===================================================== */
+
+.chat-layout{
+
+  display:grid;
+
+  grid-template-columns:300px 1fr;
+
+  gap:15px;
+
+  margin-top:18px;
+
+}
+
+.chat-users{
+
+  max-height:600px;
+
+  overflow:auto;
+
+}
+
+.chat-user{
+
+  display:flex;
+
+  align-items:center;
+
+  gap:10px;
+
+  padding:12px;
+
+  margin-bottom:6px;
+
+  border-radius:12px;
+
+  cursor:pointer;
+
+  background:#0c101c;
+
+}
+
+.chat-user:hover,
+.chat-user.active{
+
+  background:
+    linear-gradient(
+      100deg,
+      rgba(168,85,247,.25),
+      rgba(32,217,255,.10)
+    );
+
+}
+
+.chat-window{
+
+  min-height:600px;
+
+  display:flex;
+
+  flex-direction:column;
+
+}
+
+.chat-header{
+
+  padding-bottom:15px;
+
+  border-bottom:1px solid rgba(255,255,255,.08);
+
+}
+
+.chat-messages{
+
+  flex:1;
+
+  min-height:400px;
+
+  max-height:500px;
+
+  overflow:auto;
+
+  padding:18px 0;
+
+}
+
+.chat-bubble{
+
+  width:max-content;
+
+  max-width:75%;
+
+  padding:11px 14px;
+
+  margin:7px 0;
+
+  border-radius:15px;
+
+  background:#171c2d;
+
+}
+
+.chat-bubble.mine{
+
+  margin-left:auto;
+
+  background:
+    linear-gradient(
+      135deg,
+      var(--purple),
+      var(--blue)
+    );
+
+}
+
+.chat-time{
+
+  display:block;
+
+  font-size:9px;
+
+  opacity:.65;
+
+  margin-top:4px;
+
+}
+
+.chat-compose{
+
+  display:flex;
+
+  gap:8px;
+
+}
+
+.chat-compose input{
+
+  margin:0;
+
+}
+
+
+/* =====================================================
+   BOTTOM NAVIGATION
+===================================================== */
+
+.bottom-nav{
+
+  display:none;
+
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media(max-width:800px){
+
+  .sidebar{
+
+    width:70px;
+
+    padding:15px 7px;
+
+  }
+
+  .sidebar .logo{
+
+    text-align:center;
+
+  }
+
+  .sidebar .logo span{
+
+    display:none;
+
+  }
+
+  .nav{
+
+    text-align:center;
+
+    font-size:20px;
+
+  }
+
+  .nav .txt{
+
+    display:none;
+
+  }
+
+  .main{
+
+    margin-left:70px;
+
+  }
+
+  .content{
+
+    padding:16px;
+
+  }
+
+  .chat-layout{
+
+    grid-template-columns:1fr;
+
+  }
+
+}
+
+@media(max-width:550px){
+
+  .sidebar{
+
+    display:none;
+
+  }
+
+  .main{
+
+    margin-left:0;
+
+    padding-bottom:75px;
+
+  }
+
+  .header{
+
+    padding:0 15px;
+
+  }
+
+  .content{
+
+    padding:14px;
+
+  }
+
+  .hero h1{
+
+    font-size:24px;
+
+  }
+
+  .team-card{
+
+    width:270px;
+
+  }
+
+  .bottom-nav{
+
+    position:fixed;
+
+    left:10px;
+
+    right:10px;
+
+    bottom:10px;
+
+    height:62px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-around;
+
+    z-index:999;
+
+    border-radius:18px;
+
+    background:
+      rgba(10,13,25,.94);
+
+    border:1px solid rgba(255,255,255,.10);
+
+    backdrop-filter:blur(18px);
+
+    box-shadow:
+      0 15px 40px rgba(0,0,0,.45);
+
+  }
+
+  .bottom-nav button{
+
+    flex:1;
+
+    height:100%;
+
+    background:transparent;
+
+    color:#8f99b2;
+
+    font-size:11px;
+
+    font-weight:700;
+
+  }
+
+  .bottom-nav button.active{
+
+    color:white;
+
+  }
+
+  .bottom-nav button span{
+
+    display:block;
+
+    font-size:20px;
+
+    margin-bottom:2px;
+
+  }
+
+}
+
+
+/* =====================================================
+   FILE INPUT
+===================================================== */
+
+.file-input{
+
+  padding:11px;
+
+  background:#0b0f1c;
+
+  border:1px dashed rgba(255,255,255,.16);
+
+}
+
+.upload-preview{
+
+  width:100%;
+
+  height:120px;
+
+  margin-top:8px;
+
+  border-radius:14px;
+
+  object-fit:cover;
+
+  display:none;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+
+<!-- =====================================================
+     AUTH
+===================================================== -->
+
+<section id="auth" class="auth">
+
+<div class="auth-box">
+
+<div class="logo">
+
+GRAND <span>MARKET</span>
+
+</div>
+
+
+<div id="loginBox">
+
+<h1>Welcome back 👋</h1>
+
+<p class="muted">
+
+Login to your Grand Market account.
+
+</p>
+
+<input
+id="loginEmail"
+type="email"
+placeholder="Email"
+>
+
+<input
+id="loginPassword"
+type="password"
+placeholder="Password"
+>
+
+<button
+class="btn green full"
+onclick="login()"
+>
+
+🔐 Login
+
+</button>
+
+<p
+id="loginMsg"
+class="muted"
+style="margin-top:10px"
+></p>
+
+<p style="margin-top:18px">
+
+Don't have an account?
+
+</p>
+
+<button
+class="btn full"
+onclick="showRegister()"
+>
+
+🚀 Create Account
+
+</button>
+
+</div>
+
+
+<div
+id="registerBox"
+class="hidden"
+>
+
+<h1>Create account 🚀</h1>
+
+<p class="muted">
+
+Join Grand Market.
+
+</p>
+
+<input
+id="regUsername"
+placeholder="Username"
+>
+
+<input
+id="regDisplay"
+placeholder="Display Name"
+>
+
+<input
+id="regEmail"
+type="email"
+placeholder="Email"
+>
+
+<input
+id="regPassword"
+type="password"
+placeholder="Password"
+>
+
+<textarea
+id="regBio"
+placeholder="Bio"
+></textarea>
+
+<button
+class="btn green full"
+onclick="register()"
+>
+
+🚀 Create Account
+
+</button>
+
+<p
+id="regMsg"
+class="muted"
+style="margin-top:10px"
+></p>
+
+<button
+class="btn full"
+onclick="showLogin()"
+>
+
+← Back to Login
+
+</button>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- =====================================================
+     APP
+===================================================== -->
+
+<div id="app">
+
+
+<aside class="sidebar">
+
+<div class="logo">
+
+GRAND <span>MARKET</span>
+
+</div>
+
+
+<button
+class="nav active"
+onclick="openPage('home',this)"
+>
+
+🏠 <span class="txt">Home</span>
+
+</button>
+
+
+<button
+class="nav"
+onclick="openPage('members',this)"
+>
+
+👥 <span class="txt">Members</span>
+
+</button>
+
+
+<button
+class="nav"
+onclick="openPage('messages',this)"
+>
+
+💬 <span class="txt">Messages</span>
+
+</button>
+
+
+<button
+class="nav"
+onclick="openPage('groups',this)"
+>
+
+👨‍👩‍👧 <span class="txt">Groups</span>
+
+</button>
+
+
+<button
+class="nav"
+onclick="openPage('market',this)"
+>
+
+🛒 <span class="txt">Marketplace</span>
+
+</button>
+
+
+<button
+class="nav"
+onclick="openPage('wallet',this)"
+>
+
+🪙 <span class="txt">CP Wallet</span>
+
+</button>
+
+
+<button
+class="nav"
+onclick="openPage('ratings',this)"
+>
+
+⭐ <span class="txt">Ratings</span>
+
+</button>
+
+
+<button
+class="nav"
+onclick="openPage('giveaways',this)"
+>
+
+🎁 <span class="txt">Giveaways</span>
+
+</button>
+
+
+<button
+class="nav"
+onclick="openPage('leaderboard',this)"
+>
+
+🏆 <span class="txt">Leaderboard</span>
+
+</button>
+
+
+<button
+class="nav"
+onclick="openPage('team',this)"
+>
+
+🛡️ <span class="txt">Team</span>
+
+</button>
+
+
+<button
+class="nav"
+onclick="openPage('reports',this)"
+>
+
+🚨 <span class="txt">Reports</span>
+
+</button>
+
+
+<button
+class="nav"
+onclick="openPage('notifications',this)"
+>
+
+🔔 <span class="txt">Notifications</span>
+
+</button>
+
+
+<button
+class="nav"
+onclick="openPage('profile',this)"
+>
+
+👤 <span class="txt">My Profile</span>
+
+</button>
+
+
+<button
+class="nav"
+onclick="openPage('settings',this)"
+>
+
+⚙️ <span class="txt">Settings</span>
+
+</button>
+
+
+<button
+class="nav"
+onclick="logout()"
+>
+
+🚪 <span class="txt">Logout</span>
+
+</button>
+
+</aside>
+
+
+<main class="main">
+
+
+<header class="header">
+
+<div class="logo">
+
+GRAND <span>MARKET</span>
+
+</div>
+
+
+<div class="user-mini">
+
+<div
+id="headerAvatar"
+class="avatar"
+>
+
+👤
+
+</div>
+
+<strong
+id="headerName"
+class="gradient-name"
+>
+
+Player
+
+</strong>
+
+</div>
+
+</header>
+
+
+<div class="content">
+
+
+<!-- =====================================================
+     HOME
+===================================================== -->
+
+<section
+id="home"
+class="page active"
+>
+
+<div class="hero">
+
+<h1>
+
+Welcome back,
+
+<span
+id="welcomeName"
+class="gradient-name"
+></span>
+
+🔥
+
+</h1>
+
+<p class="muted">
+
+Your Grand Market dashboard.
+
+</p>
+
+</div>
+
+
+<div class="balance">
+
+<small>
+
+YOUR CP BALANCE
+
+</small>
+
+<div class="cp">
+
+<span id="homeCP">0</span> CP
+
+</div>
+
+<p class="muted">
+
+₦1 = 1,000 CP
+
+</p>
+
+</div>
+
+
+<h2 style="margin-top:28px">
+
+⚡ Quick Actions
+
+</h2>
+
+
+<div class="quick">
+
+<button
+onclick="openPageById('market')"
+>
+
+🛒<br>Marketplace
+
+</button>
+
+
+<button
+onclick="openPageById('wallet')"
+>
+
+🪙<br>CP Wallet
+
+</button>
+
+
+<button
+onclick="openPageById('messages')"
+>
+
+💬<br>Messages
+
+</button>
+
+
+<button
+onclick="openPageById('members')"
+>
+
+👥<br>Members
+
+</button>
+
+
+<button
+onclick="openPageById('groups')"
+>
+
+👨‍👩‍👧<br>Groups
+
+</button>
+
+
+<button
+onclick="openPageById('giveaways')"
+>
+
+🎁<br>Giveaways
+
+</button>
+
+
+<button
+onclick="openPageById('ratings')"
+>
+
+⭐<br>Ratings
+
+</button>
+
+
+<button
+onclick="openPageById('reports')"
+>
+
+🚨<br>Report
+
+</button>
+
+</div>
+
+
+<h2 style="margin-top:30px">
+
+🛡️ Grand Market Team
+
+</h2>
+
+<p
+class="muted"
+style="margin-top:5px"
+>
+
+Meet the people managing Grand Market.
+
+</p>
+
+
+<div class="team-slider">
+
+<div
+id="teamTrack"
+class="team-track"
+></div>
+
+</div>
+
+
+<div class="grid">
+
+<div class="card">
+
+<h3>👥 Members</h3>
+
+<p
+class="muted"
+style="margin-top:7px"
+>
+
+<strong
+style="font-size:25px;color:white"
+>
+
+1,000+
+
+</strong>
+
+registered members
+
+</p>
+
+</div>
+
+
+<div class="card">
+
+<h3>💬 Community</h3>
+
+<p
+class="muted"
+style="margin-top:7px"
+>
+
+Chat and connect with Grand Market players.
+
+</p>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- =====================================================
+     MEMBERS
+===================================================== -->
+
+<section
+id="members"
+class="page"
+>
+
+<h1>👥 Members</h1>
+
+<p class="muted">
+
+All registered Grand Market profiles.
+
+</p>
+
+<input
+id="memberSearch"
+placeholder="🔎 Search members..."
+oninput="searchMembers()"
+>
+
+
+<div
+id="membersList"
+class="grid"
+></div>
+
+</section>
+
+
+<!-- =====================================================
+     PUBLIC PROFILE
+===================================================== -->
+
+<section
+id="publicProfile"
+class="page"
+>
+
+<button
+class="btn"
+onclick="openPageById('members')"
+>
+
+← Back
+
+</button>
+
+
+<div
+id="publicCover"
+class="cover"
+style="margin-top:15px"
+></div>
+
+
+<div class="card profile">
+
+<div
+id="publicAvatar"
+class="big-avatar"
+>
+
+👤
+
+</div>
+
+
+<h1
+id="publicName"
+style="margin-top:15px"
+></h1>
+
+<p
+id="publicUsername"
+class="muted"
+></p>
+
+<div id="publicOnline"></div>
+
+<div id="publicRole"></div>
+
+<p
+id="publicBio"
+class="muted"
+style="margin-top:15px"
+></p>
+
+
+<div class="grid">
+
+<div class="card">
+
+<h3>📅 Member Since</h3>
+
+<p id="publicDate">—</p>
+
+</div>
+
+
+<div class="card">
+
+<h3>⭐ Rating</h3>
+
+<p id="publicRating">
+
+No ratings yet
+
+</p>
+
+</div>
+
+</div>
+
+
+<button
+class="btn green"
+onclick="messageViewedUser()"
+>
+
+💬 Message
+
+</button>
+
+
+<button
+class="btn red"
+onclick="reportViewedUser()"
+>
+
+🚨 Report
+
+</button>
+
+</div>
+
+</section>
+
+
+<!-- =====================================================
+     MESSAGES
+===================================================== -->
+
+<section
+id="messages"
+class="page"
+>
+
+<h1>💬 Messages</h1>
+
+<p class="muted">
+
+Real-time private chatting.
+
+</p>
+
+
+<div class="chat-layout">
+
+
+<div class="card chat-users">
+
+<h3>Conversations</h3>
+
+<div
+id="conversationList"
+style="margin-top:15px"
+>
+
+No conversations yet.
+
+</div>
+
+</div>
+
+
+<div class="card chat-window">
+
+<div class="chat-header">
+
+<h3 id="chatTitle">
+
+Select a member
+
+</h3>
+
+<p
+id="chatStatus"
+class="muted"
+>
+
+Choose someone to start chatting.
+
+</p>
+
+</div>
+
+
+<div
+id="chatMessages"
+class="chat-messages"
+>
+
+<p class="muted">
+
+Your conversation will appear here.
+
+</p>
+
+</div>
+
+
+<div class="chat-compose">
+
+<input
+id="chatInput"
+placeholder="Write a message..."
+onkeydown="handleChatKey(event)"
+>
+
+<button
+class="btn green"
+onclick="sendChatMessage()"
+>
+
+Send
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- =====================================================
+     GROUPS
+===================================================== -->
+
+<section
+id="groups"
+class="page"
+>
+
+<h1>👨‍👩‍👧 Groups</h1>
+
+<p class="muted">
+
+Find and join communities.
+
+</p>
+
+<div
+id="groupsList"
+class="grid"
+></div>
+
+</section>
+
+
+<!-- =====================================================
+     MARKETPLACE
+===================================================== -->
+
+<section
+id="market"
+class="page"
+>
+
+<h1>🛒 Marketplace</h1>
+
+<p class="muted">
+
+Buy and sell with CP.
+
+</p>
+
+
+<button
+class="btn green"
+onclick="toggleListing()"
+>
+
+➕ Create Listing
+
+</button>
+
+
+<div
+id="listingForm"
+class="card hidden"
+style="margin-top:15px"
+>
+
+<input
+id="listingTitle"
+placeholder="Item title"
+>
+
+<textarea
+id="listingDescription"
+placeholder="Description"
+></textarea>
+
+<input
+id="listingPrice"
+type="number"
+placeholder="Price in CP"
+>
+
+<input
+id="listingImage"
+placeholder="Image URL (optional)"
+>
+
+<button
+class="btn green"
+onclick="createListing()"
+>
+
+Publish Listing
+
+</button>
+
+</div>
+
+
+<div
+id="listings"
+class="grid"
+></div>
+
+</section>
+
+
+<!-- =====================================================
+     WALLET
+===================================================== -->
+
+<section
+id="wallet"
+class="page"
+>
+
+<h1>🪙 CP Wallet</h1>
+
+
+<div class="balance">
+
+<div class="cp">
+
+<span id="walletCP">0</span> CP
+
+</div>
+
+<p class="muted">
+
+₦1 = 1,000 CP
+
+</p>
+
+</div>
+
+
+<div
+class="account-card"
+>
+
+<div class="account-row">
+
+<span class="account-label">
+Name
+</span>
+
+<span class="account-value">
+Adedayo_Oyewole
+</span>
+
+</div>
+
+
+<div class="account-row">
+
+<span class="account-label">
+Bank
+</span>
+
+<span class="account-value">
+Moniepoint
+</span>
+
+</div>
+
+
+<div class="account-row">
+
+<span class="account-label">
+Account Number
+</span>
+
+<span class="account-number">
+8087447979
+</span>
+
+</div>
+
+</div>
+
+
+<div
+class="card"
+style="margin-top:18px"
+>
+
+<h2>💰 Deposit CP</h2>
+
+<p
+class="muted"
+style="margin-top:10px"
+>
+
+Send your payment using the account details above.
+
+</p>
+
+
+<input
+id="depositAmount"
+type="number"
+placeholder="Amount in ₦"
+>
+
+<input
+id="depositReference"
+placeholder="Payment reference"
+>
+
+<button
+class="btn green"
+onclick="submitDeposit()"
+>
+
+Submit Deposit
+
+</button>
+
+<p
+id="depositStatus"
+class="muted"
+></p>
+
+</div>
+
+</section>
+
+
+<!-- =====================================================
+     RATINGS
+===================================================== -->
+
+<section
+id="ratings"
+class="page"
+>
+
+<h1>⭐ Ratings</h1>
+
+<p class="muted">
+
+Community reputation.
+
+</p>
+
+<div
+id="ratingsList"
+class="grid"
+></div>
+
+</section>
+
+
+<!-- =====================================================
+     GIVEAWAYS
+===================================================== -->
+
+<section
+id="giveaways"
+class="page"
+>
+
+<h1>🎁 Giveaways</h1>
+
+<div
+id="giveawaysList"
+class="grid"
+></div>
+
+</section>
+
+
+<!-- =====================================================
+     LEADERBOARD
+===================================================== -->
+
+<section
+id="leaderboard"
+class="page"
+>
+
+<h1>🏆 Leaderboard</h1>
+
+<div
+id="leaderboardList"
+class="list"
+></div>
+
+</section>
+
+
+<!-- =====================================================
+     TEAM
+===================================================== -->
+
+<section
+id="team"
+class="page"
+>
+
+<h1>🛡️ Grand Market Team</h1>
+
+<p class="muted">
+
+Official Grand Market staff.
+
+</p>
+
+<div
+id="fullTeamList"
+class="grid"
+></div>
+
+</section>
+
+
+<!-- =====================================================
+     REPORTS
+===================================================== -->
+
+<section
+id="reports"
+class="page"
+>
+
+<h1>🚨 Report Center</h1>
+
+<p
+id="reportAccessText"
+class="muted"
+style="margin-top:5px"
+></p>
+
+
+<div
+id="playerReportForm"
+class="card"
+>
+
+<h3>Report a player</h3>
+
+
+<select id="reportReason">
+
+<option value="">
+Select reason
+</option>
+
+<option>Scam</option>
+<option>Harassment</option>
+<option>Fake Listing</option>
+<option>Impersonation</option>
+<option>Spam</option>
+<option>Other</option>
+
+</select>
+
+
+<input
+id="reportUsername"
+placeholder="@username"
+>
+
+
+<textarea
+id="reportDetails"
+placeholder="Explain the problem..."
+></textarea>
+
+
+<button
+class="btn red"
+onclick="submitReport()"
+>
+
+🚨 Submit Report
+
+</button>
+
+
+<p
+id="reportStatus"
+class="muted"
+></p>
+
+</div>
+
+
+<div
+id="staffReports"
+class="hidden"
+style="margin-top:20px"
+>
+
+<h2>
+
+🛡️ Staff Reports
+
+</h2>
+
+<p
+class="muted"
+style="margin-top:5px"
+>
+
+Reports submitted by players.
+
+</p>
+
+
+<div
+id="reportsList"
+class="list"
+></div>
+
+</div>
+
+</section>
+
+
+<!-- =====================================================
+     NOTIFICATIONS
+===================================================== -->
+
+<section
+id="notifications"
+class="page"
+>
+
+<h1>🔔 Notifications</h1>
+
+<div
+id="notificationsList"
+class="list"
+></div>
+
+</section>
+
+
+<!-- =====================================================
+     PROFILE
+===================================================== -->
+
+<section
+id="profile"
+class="page"
+>
+
+<h1>👤 My Profile</h1>
+
+
+<div
+id="myCover"
+class="cover"
+></div>
+
+
+<div class="card profile">
+
+
+<div
+id="myAvatar"
+class="big-avatar"
+>
+
+👤
+
+</div>
+
+
+<h1
+id="myName"
+style="margin-top:15px"
+></h1>
+
+
+<p
+id="myUsername"
+class="muted"
+></p>
+
+
+<div id="myOnline"></div>
+
+<div id="myRole"></div>
+
+
+<p
+id="myBio"
+class="muted"
+style="margin-top:15px"
+></p>
+
+
+<div class="grid">
+
+<div class="card">
+
+<h3>🪙 CP</h3>
+
+<p id="myCP">
+
+0 CP
+
+</p>
+
+</div>
+
+
+<div class="card">
+
+<h3>📅 Joined</h3>
+
+<p id="myJoined">
+
+—
+
+</p>
+
+</div>
+
+</div>
+
+
+<h2 style="margin-top:25px">
+
+✏️ Edit Profile
+
+</h2>
+
+
+<input
+id="editDisplayName"
+placeholder="Display name"
+>
+
+
+<textarea
+id="editBio"
+placeholder="Bio"
+></textarea>
+
+
+<label
+class="muted"
+style="display:block;margin-top:12px"
+>
+
+Profile Picture
+
+</label>
+
+
+<input
+id="editAvatarFile"
+class="file-input"
+type="file"
+accept="image/*"
+onchange="previewAvatar(event)"
+>
+
+
+<img
+id="avatarPreview"
+class="upload-preview"
+>
+
+
+<label
+class="muted"
+style="display:block;margin-top:12px"
+>
+
+Profile Banner
+
+</label>
+
+
+<input
+id="editBannerFile"
+class="file-input"
+type="file"
+accept="image/*"
+onchange="previewBanner(event)"
+>
+
+
+<img
+id="bannerPreview"
+class="upload-preview"
+>
+
+
+<button
+class="btn green"
+onclick="saveProfile()"
+style="margin-top:12px"
+>
+
+💾 Save Profile
+
+</button>
+
+
+<p
+id="profileStatus"
+class="muted"
+></p>
+
+</div>
+
+</section>
+
+
+<!-- =====================================================
+     SETTINGS
+===================================================== -->
+
+<section
+id="settings"
+class="page"
+>
+
+<h1>⚙️ Settings</h1>
+
+
+<div class="card">
+
+<h2>Account</h2>
+
+<p
+class="muted"
+style="margin-top:10px"
+>
+
+Manage your Grand Market account.
+
+</p>
+
+
+<button
+class="btn red"
+style="margin-top:15px"
+onclick="logout()"
+>
+
+🚪 Logout
+
+</button>
+
+</div>
+
+
+<!-- =====================================================
+     ROLE MANAGEMENT
+===================================================== -->
+
+<div
+id="roleManager"
+class="card admin-box hidden"
+style="margin-top:18px"
+>
+
+<h2>🛡️ Role Management</h2>
+
+<p
+class="muted"
+style="margin-top:7px"
+>
+
+Owners and administrators can manage player roles.
+
+</p>
+
+
+<select id="roleUser"></select>
+
+
+<select id="roleSelect">
+
+<option value="Grand Member">
+Grand Member
+</option>
+
+<option value="Moderator">
+Moderator
+</option>
+
+<option value="Administrator">
+Administrator
+</option>
+
+<option value="Owner">
+Owner
+</option>
+
+<option value="VIP">
+VIP
+</option>
+
+<option value="Premium">
+Premium
+</option>
+
+<option value="Seller">
+Seller
+</option>
+
+</select>
+
+
+<button
+class="btn green"
+onclick="changeUserRole()"
+>
+
+🛡️ Update Role
+
+</button>
+
+
+<p
+id="roleStatus"
+class="muted"
+></p>
+
+</div>
+
+</section>
+
+
+</div>
+
+</main>
+
+
+<!-- =====================================================
+     MOBILE BOTTOM NAV
+===================================================== -->
+
+<nav class="bottom-nav">
+
+<button
+id="bottomHome"
+class="active"
+onclick="openPageById('home')"
+>
+
+<span>🏠</span>
+Home
+
+</button>
+
+
+<button
+onclick="openPageById('wallet')"
+>
+
+<span>🪙</span>
+Deposit
+
+</button>
+
+
+<button
+onclick="openPageById('profile')"
+>
+
+<span>👤</span>
+Profile
+
+</button>
+
+</nav>
+
+
+</div>
+
+
+<script>
+
+/* =====================================================
+   SUPABASE
+===================================================== */
+
+const SUPABASE_URL =
+"https://qdnnduidzakdfzhrefnn.supabase.co";
+
+const SUPABASE_PUBLISHABLE_KEY =
+"sb_publishable_E5EGBYHgJ3I7-qE-jYeaxQ_aHosDKPe";
+
+const db =
+supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY
+);
+
+
+/* =====================================================
+   GLOBALS
+===================================================== */
+
+let currentUser = null;
+
+let currentProfile = null;
+
+let allMembers = [];
+
+let viewedUser = null;
+
+let selectedChatUser = null;
+
+let onlineUsers = new Set();
+
+let presenceChannel = null;
+
+
+/* =====================================================
+   AUTH
+===================================================== */
+
+function showRegister(){
+
+  document
+    .getElementById("loginBox")
+    .classList.add("hidden");
+
+  document
+    .getElementById("registerBox")
+    .classList.remove("hidden");
+
+}
+
+
+function showLogin(){
+
+  document
+    .getElementById("registerBox")
+    .classList.add("hidden");
+
+  document
+    .getElementById("loginBox")
+    .classList.remove("hidden");
+
+}
+
+
+/* =====================================================
+   REGISTER
+===================================================== */
+
+async function register(){
+
+  const username =
+    document
+      .getElementById("regUsername")
+      .value.trim();
+
+  const displayName =
+    document
+      .getElementById("regDisplay")
+      .value.trim();
+
+  const email =
+    document
+      .getElementById("regEmail")
+      .value.trim();
+
+  const password =
+    document
+      .getElementById("regPassword")
+      .value;
+
+  const bio =
+    document
+      .getElementById("regBio")
+      .value.trim();
+
+  const status =
+    document.getElementById("regMsg");
+
+
+  if(
+    !username ||
+    !displayName ||
+    !email ||
+    !password
+  ){
+
+    status.textContent =
+      "Please complete all required fields.";
+
+    return;
+
+  }
+
+
+  status.textContent =
+    "Creating account...";
+
+
+  const {
+    data,
+    error
+  } =
+    await db.auth.signUp({
+      email,
+      password
+    });
+
+
+  if(error){
+
+    status.textContent =
+      error.message;
+
+    return;
+
+  }
+
+
+  if(!data.user){
+
+    status.textContent =
+      "Account creation failed.";
+
+    return;
+
+  }
+
+
+  const {
+    error:profileError
+  } =
+    await db
+      .from("Profiles")
+      .update({
+
+        username,
+        display_name:displayName,
+        bio,
+        role:"Grand Member"
+
+      })
+      .eq(
+        "user_id",
+        data.user.id
+      );
+
+
+  if(profileError){
+
+    console.error(profileError);
+
+    status.textContent =
+      "Account created, but profile setup needs attention.";
+
+    return;
+
+  }
+
+
+  status.textContent =
+    "Account created successfully 🔥";
+
+  setTimeout(
+    showLogin,
+    1200
+  );
+
+}
+
+
+/* =====================================================
+   LOGIN
+===================================================== */
+
+async function login(){
+
+  const email =
+    document
+      .getElementById("loginEmail")
+      .value.trim();
+
+  const password =
+    document
+      .getElementById("loginPassword")
+      .value;
+
+  const status =
+    document.getElementById("loginMsg");
+
+
+  if(!email || !password){
+
+    status.textContent =
+      "Enter email and password.";
+
+    return;
+
+  }
+
+
+  status.textContent =
+    "Logging in...";
+
+
+  const {
+    data,
+    error
+  } =
+    await db.auth.signInWithPassword({
+
+      email,
+      password
+
+    });
+
+
+  if(error){
+
+    status.textContent =
+      error.message;
+
+    return;
+
+  }
+
+
+  currentUser =
+    data.user;
+
+  await startApp();
+
+}
+
+
+/* =====================================================
+   START APP
+===================================================== */
+
+async function startApp(){
+
+  document
+    .getElementById("auth")
+    .style.display = "none";
+
+  document
+    .getElementById("app")
+    .style.display = "block";
+
+
+  await loadProfile();
+
+  await setupPresence();
+
+  await loadMembers();
+
+  await loadGroups();
+
+  await loadMessages();
+
+  await loadListings();
+
+  await loadRatings();
+
+  await loadGiveaways();
+
+  await loadNotifications();
+
+  await loadTeam();
+
+  loadLeaderboard();
+
+  updateRoleManager();
+
+  await loadStaffReports();
+
+}
+
+
+/* =====================================================
+   PROFILE
+===================================================== */
+
+async function loadProfile(){
+
+  const {
+    data,
+    error
+  } =
+    await db
+      .from("Profiles")
+      .select("*")
+      .eq(
+        "user_id",
+        currentUser.id
+      )
+      .single();
+
+
+  if(error){
+
+    console.error(
+      "Profile error:",
+      error
+    );
+
+    return;
+
+  }
+
+
+  currentProfile =
+    data;
+
+
+  const name =
+    data.display_name ||
+    data.username ||
+    "Player";
+
+
+  const cp =
+    Number(
+      data.cp_balance ||
+      data.CP ||
+      0
+    );
+
+
+  document
+    .getElementById("welcomeName")
+    .textContent = name;
+
+
+  document
+    .getElementById("headerName")
+    .textContent = name;
+
+
+  document
+    .getElementById("homeCP")
+    .textContent =
+      cp.toLocaleString();
+
+
+  document
+    .getElementById("walletCP")
+    .textContent =
+      cp.toLocaleString();
+
+
+  document
+    .getElementById("myName")
+    .textContent = name;
+
+
+  document
+    .getElementById("myUsername")
+    .textContent =
+      "@" +
+      (
+        data.username ||
+        "user"
+      );
+
+
+  document
+    .getElementById("myBio")
+    .textContent =
+      data.bio ||
+      "No bio yet.";
+
+
+  document
+    .getElementById("myCP")
+    .textContent =
+      cp.toLocaleString() +
+      " CP";
+
+
+  document
+    .getElementById("myRole")
+    .innerHTML =
+      roleBadge(data.role);
+
+
+  document
+    .getElementById("myJoined")
+    .textContent =
+      data.created_at
+        ? new Date(
+            data.created_at
+          ).toLocaleDateString()
+        : "—";
+
+
+  document
+    .getElementById("editDisplayName")
+    .value =
+      data.display_name || "";
+
+
+  document
+    .getElementById("editBio")
+    .value =
+      data.bio || "";
+
+
+  renderProfileMedia(
+    data
+  );
+
+
+  renderMyOnlineStatus();
+
+}
+
+
+/* =====================================================
+   PROFILE MEDIA
+===================================================== */
+
+function renderProfileMedia(data){
+
+  const avatar =
+    document.getElementById(
+      "myAvatar"
+    );
+
+  const headerAvatar =
+    document.getElementById(
+      "headerAvatar"
+    );
+
+
+  if(data.avatar_url){
+
+    const image =
+      `<img src="${escapeHTML(
+        data.avatar_url
+      )}" alt="Profile">`;
+
+    avatar.innerHTML =
+      image;
+
+    headerAvatar.innerHTML =
+      image;
+
+  }else{
+
+    avatar.innerHTML =
+      "👤";
+
+    headerAvatar.innerHTML =
+      "👤";
+
+  }
+
+
+  const cover =
+    document.getElementById(
+      "myCover"
+    );
+
+
+  if(data.banner_url){
+
+    cover.classList.add(
+      "has-image"
+    );
+
+    cover.style.backgroundImage =
+      `url("${escapeHTML(
+        data.banner_url
+      )}")`;
+
+  }else{
+
+    cover.classList.remove(
+      "has-image"
+    );
+
+    cover.style.backgroundImage =
+      "";
+
+  }
+
+}
+
+
+/* =====================================================
+   FILE PREVIEWS
+===================================================== */
+
+function previewAvatar(event){
+
+  const file =
+    event.target.files[0];
+
+  const preview =
+    document.getElementById(
+      "avatarPreview"
+    );
+
+
+  if(!file){
+
+    preview.style.display =
+      "none";
+
+    return;
+
+  }
+
+
+  preview.src =
+    URL.createObjectURL(
+      file
+    );
+
+  preview.style.display =
+    "block";
+
+}
+
+
+function previewBanner(event){
+
+  const file =
+    event.target.files[0];
+
+  const preview =
+    document.getElementById(
+      "bannerPreview"
+    );
+
+
+  if(!file){
+
+    preview.style.display =
+      "none";
+
+    return;
+
+  }
+
+
+  preview.src =
+    URL.createObjectURL(
+      file
+    );
+
+  preview.style.display =
+    "block";
+
+}
+
+
+/* =====================================================
+   UPLOAD MEDIA
+===================================================== */
+
+async function uploadProfileMedia(
+  file,
+  type
+){
+
+  if(!file)
+    return null;
+
+
+  const allowed =
+    [
+      "image/jpeg",
+      "image/png",
+      "image/webp",
+      "image/gif"
+    ];
+
+
+  if(!allowed.includes(
+    file.type
+  )){
+
+    throw new Error(
+      "Please select a JPG, PNG, WEBP or GIF image."
+    );
+
+  }
+
+
+  if(
+    file.size >
+    8 * 1024 * 1024
+  ){
+
+    throw new Error(
+      "Image must be smaller than 8MB."
+    );
+
+  }
+
+
+  const extension =
+    file.name
+      .split(".")
+      .pop()
+      .toLowerCase();
+
+
+  const path =
+    currentUser.id +
+    "/" +
+    type +
+    "-" +
+    Date.now() +
+    "." +
+    extension;
+
+
+  const {
+    error
+  } =
+    await db.storage
+      .from(
+        "profile-media"
+      )
+      .upload(
+        path,
+        file,
+        {
+          cacheControl:"3600",
+          upsert:false,
+          contentType:file.type
+        }
+      );
+
+
+  if(error)
+    throw error;
+
+
+  const {
+    data
+  } =
+    db.storage
+      .from(
+        "profile-media"
+      )
+      .getPublicUrl(
+        path
+      );
+
+
+  return data.publicUrl;
+
+}
+
+
+/* =====================================================
+   SAVE PROFILE
+===================================================== */
+
+async function saveProfile(){
+
+  const displayName =
+    document
+      .getElementById(
+        "editDisplayName"
+      )
+      .value.trim();
+
+
+  const bio =
+    document
+      .getElementById(
+        "editBio"
+      )
+      .value.trim();
+
+
+  const avatarFile =
+    document
+      .getElementById(
+        "editAvatarFile"
+      )
+      .files[0];
+
+
+  const bannerFile =
+    document
+      .getElementById(
+        "editBannerFile"
+      )
+      .files[0];
+
+
+  const status =
+    document.getElementById(
+      "profileStatus"
+    );
+
+
+  if(!displayName){
+
+    status.textContent =
+      "Display name cannot be empty.";
+
+    return;
+
+  }
+
+
+  status.textContent =
+    "Saving profile...";
+
+
+  try{
+
+    let avatarUrl =
+      currentProfile.avatar_url ||
+      null;
+
+    let bannerUrl =
+      currentProfile.banner_url ||
+      null;
+
+
+    if(avatarFile){
+
+      status.textContent =
+        "Uploading profile picture...";
+
+
+      avatarUrl =
+        await uploadProfileMedia(
+          avatarFile,
+          "avatar"
+        );
+
+    }
+
+
+    if(bannerFile){
+
+      status.textContent =
+        "Uploading banner...";
+
+
+      bannerUrl =
+        await uploadProfileMedia(
+          bannerFile,
+          "banner"
+        );
+
+    }
+
+
+    const {
+      data,
+      error
+    } =
+    await db
+      .from("Profiles")
+      .update({
+
+        display_name:
+          displayName,
+
+        bio,
+
+        avatar_url:
+          avatarUrl,
+
+        banner_url:
+          bannerUrl
+
+      })
+      .eq(
+        "user_id",
+        currentUser.id
+      )
+      .select()
+      .single();
+
+
+    if(error)
+      throw error;
+
+
+    currentProfile =
+      data;
+
+
+    status.textContent =
+      "Profile updated successfully ✅";
+
+
+    document
+      .getElementById(
+        "editAvatarFile"
+      )
+      .value = "";
+
+
+    document
+      .getElementById(
+        "editBannerFile"
+      )
+      .value = "";
+
+
+    document
+      .getElementById(
+        "avatarPreview"
+      )
+      .style.display =
+        "none";
+
+
+    document
+      .getElementById(
+        "bannerPreview"
+      )
+      .style.display =
+        "none";
+
+
+    await loadProfile();
+
+    await loadMembers();
+
+    await loadTeam();
+
+  }catch(error){
+
+    console.error(error);
+
+    status.textContent =
+      error.message ||
+      "Unable to update profile.";
+
+  }
+
+}
+
+
+/* =====================================================
+   PRESENCE
+===================================================== */
+
+async function setupPresence(){
+
+  if(presenceChannel){
+
+    try{
+
+      await db
+        .removeChannel(
+          presenceChannel
+        );
+
+    }catch(e){}
+
+  }
+
+
+  presenceChannel =
+    db.channel(
+      "grand-market-online",
+      {
+        config:{
+          presence:{
+            key:
+              currentUser.id
+          }
+        }
+      }
+    );
+
+
+  presenceChannel
+    .on(
+      "presence",
+      {
+        event:"sync"
+      },
+      () => {
+
+        const state =
+          presenceChannel
+            .presenceState();
+
+
+        onlineUsers =
+          new Set(
+            Object.keys(state)
+          );
+
+
+        renderMembers(
+          getSortedMembers(
+            allMembers
+          )
+        );
+
+
+        renderTeam();
+
+        renderMyOnlineStatus();
+
+
+        if(viewedUser){
+
+          renderPublicOnline(
+            viewedUser.user_id
+          );
+
+        }
+
+      }
+    )
+    .on(
+      "presence",
+      {
+        event:"join"
+      },
+      ({key}) => {
+
+        onlineUsers.add(
+          key
+        );
+
+        renderMembers(
+          getSortedMembers(
+            allMembers
+          )
+        );
+
+        renderTeam();
+
+      }
+    )
+    .on(
+      "presence",
+      {
+        event:"leave"
+      },
+      ({key}) => {
+
+        onlineUsers.delete(
+          key
+        );
+
+        renderMembers(
+          getSortedMembers(
+            allMembers
+          )
+        );
+
+        renderTeam();
+
+      }
+    )
+    .subscribe(
+      async status => {
+
+        if(
+          status ===
+          "SUBSCRIBED"
+        ){
+
+          await presenceChannel.track({
+
+            user_id:
+              currentUser.id,
+
+            username:
+              currentProfile?.username ||
+              "user",
+
+            online_at:
+              new Date()
+                .toISOString()
+
+          });
+
+        }
+
+      }
+    );
+
+}
+
+
+/* =====================================================
+   ONLINE
+===================================================== */
+
+function isOnline(id){
+
+  return onlineUsers.has(
+    id
+  );
+
+}
+
+
+function onlineBadge(id){
+
+  if(
+    isOnline(id)
+  ){
+
+    return `
+
+      <div class="online-status status-online">
+
+        <span class="status-dot"></span>
+
+        Online
+
+      </div>
+
+    `;
+
+  }
+
+
+  return `
+
+    <div class="online-status status-offline">
+
+      <span class="status-dot"></span>
+
+      Offline
+
+    </div>
+
+  `;
+
+}
+
+
+function renderMyOnlineStatus(){
+
+  const box =
+    document.getElementById(
+      "myOnline"
+    );
+
+
+  if(box){
+
+    box.innerHTML =
+      onlineBadge(
+        currentUser.id
+      );
+
+  }
+
+}
+
+
+function renderPublicOnline(id){
+
+  const box =
+    document.getElementById(
+      "publicOnline"
+    );
+
+
+  if(box){
+
+    box.innerHTML =
+      onlineBadge(id);
+
+  }
+
+}
+
+
+/* =====================================================
+   MEMBERS
+   ONLINE FIRST
+===================================================== */
+
+async function loadMembers(){
+
+  const {
+    data,
+    error
+  } =
+    await db
+      .from("Profiles")
+      .select(
+        "user_id,username,display_name,bio,avatar_url,banner_url,role,created_at"
+      )
+      .order(
+        "created_at",
+        {
+          ascending:false
+        }
+      );
+
+
+  if(error){
+
+    console.error(error);
+
+    return;
+
+  }
+
+
+  allMembers =
+    data || [];
+
+
+  renderMembers(
+    getSortedMembers(
+      allMembers
+    )
+  );
+
+
+  loadLeaderboard();
+
+  updateRoleManager();
+
+}
+
+
+/* =====================================================
+   SORT MEMBERS
+===================================================== */
+
+function getSortedMembers(
+  list
+){
+
+  return [...list].sort(
+    (a,b) => {
+
+      const aOnline =
+        isOnline(
+          a.user_id
+        );
+
+      const bOnline =
+        isOnline(
+          b.user_id
+        );
+
+
+      if(
+        aOnline &&
+        !bOnline
+      )
+        return -1;
+
+
+      if(
+        !aOnline &&
+        bOnline
+      )
+        return 1;
+
+
+      return new Date(
+        b.created_at || 0
+      ) -
+      new Date(
+        a.created_at || 0
+      );
+
+    }
+  );
+
+}
+
+
+/* =====================================================
+   RENDER MEMBERS
+===================================================== */
+
+function renderMembers(
+  list
+){
+
+  const box =
+    document.getElementById(
+      "membersList"
+    );
+
+
+  if(!list.length){
+
+    box.innerHTML =
+      `
+      <div class="card">
+
+        No members found.
+
+      </div>
+      `;
+
+    return;
+
+  }
+
+
+  box.innerHTML =
+    list
+      .map(
+        member => {
+
+          const name =
+            member.display_name ||
+            member.username ||
+            "Player";
+
+
+          return `
+
+          <div class="card member">
+
+            <div class="avatar">
+
+              ${
+                member.avatar_url
+                  ?
+                  `<img
+                    src="${escapeHTML(
+                      member.avatar_url
+                    )}"
+                    alt="Profile"
+                  >`
+                  :
+                  "👤"
+              }
+
+            </div>
+
+
+            <div class="member-info">
+
+              <div class="member-name gradient-name">
+
+                ${escapeHTML(name)}
+
+              </div>
+
+
+              <div class="member-user">
+
+                @${escapeHTML(
+                  member.username ||
+                  "user"
+                )}
+
+              </div>
+
+
+              ${onlineBadge(
+                member.user_id
+              )}
+
+
+              ${roleBadge(
+                member.role
+              )}
+
+            </div>
+
+
+            <button
+              class="btn"
+              onclick="openMemberProfile(
+                '${member.user_id}'
+              )"
+            >
+
+              View
+
+            </button>
+
+          </div>
+
+          `;
+
+        }
+      )
+      .join("");
+
+}
+
+
+/* =====================================================
+   SEARCH
+===================================================== */
+
+function searchMembers(){
+
+  const query =
+    document
+      .getElementById(
+        "memberSearch"
+      )
+      .value
+      .toLowerCase();
+
+
+  const filtered =
+    allMembers.filter(
+      member =>
+
+        String(
+          member.username || ""
+        )
+        .toLowerCase()
+        .includes(query)
+
+        ||
+
+        String(
+          member.display_name || ""
+        )
+        .toLowerCase()
+        .includes(query)
+
+        ||
+
+        String(
+          member.role || ""
+        )
+        .toLowerCase()
+        .includes(query)
+    );
+
+
+  renderMembers(
+    getSortedMembers(
+      filtered
+    )
+  );
+
+}
+
+
+/* =====================================================
+   PUBLIC PROFILE
+===================================================== */
+
+function openMemberProfile(
+  id
+){
+
+  viewedUser =
+    allMembers.find(
+      member =>
+        member.user_id === id
+    );
+
+
+  if(!viewedUser)
+    return;
+
+
+  document
+    .getElementById(
+      "publicName"
+    )
+    .textContent =
+      viewedUser.display_name ||
+      viewedUser.username ||
+      "Player";
+
+
+  document
+    .getElementById(
+      "publicUsername"
+    )
+    .textContent =
+      "@" +
+      (
+        viewedUser.username ||
+        "user"
+      );
+
+
+  document
+    .getElementById(
+      "publicBio"
+    )
+    .textContent =
+      viewedUser.bio ||
+      "No bio yet.";
+
+
+  document
+    .getElementById(
+      "publicRole"
+    )
+    .innerHTML =
+      roleBadge(
+        viewedUser.role
+      );
+
+
+  document
+    .getElementById(
+      "publicDate"
+    )
+    .textContent =
+      viewedUser.created_at
+        ?
+        new Date(
+          viewedUser.created_at
+        ).toLocaleDateString()
+        :
+        "—";
+
+
+  document
+    .getElementById(
+      "publicAvatar"
+    )
+    .innerHTML =
+      viewedUser.avatar_url
+        ?
+        `<img
+          src="${escapeHTML(
+            viewedUser.avatar_url
+          )}"
+          alt="Profile"
+        >`
+        :
+        "👤";
+
+
+  const cover =
+    document.getElementById(
+      "publicCover"
+    );
+
+
+  if(viewedUser.banner_url){
+
+    cover.classList.add(
+      "has-image"
+    );
+
+    cover.style.backgroundImage =
+      `url("${escapeHTML(
+        viewedUser.banner_url
+      )}")`;
+
+  }else{
+
+    cover.classList.remove(
+      "has-image"
+    );
+
+    cover.style.backgroundImage =
+      "";
+
+  }
+
+
+  renderPublicOnline(
+    viewedUser.user_id
+  );
+
+
+  openPageById(
+    "publicProfile"
+  );
+
+}
+
+
+/* =====================================================
+   CHAT
+===================================================== */
+
+function messageViewedUser(){
+
+  if(!viewedUser)
+    return;
+
+
+  selectedChatUser =
+    viewedUser;
+
+
+  openPageById(
+    "messages"
+  );
+
+
+  renderConversations();
+
+  loadConversation(
+    viewedUser
+  );
+
+}
+
+
+async function loadMessages(){
+
+  await renderConversations();
+
+}
+
+
+function getConversationUsers(){
+
+  const map =
+    new Map();
+
+
+  allMembers.forEach(
+    member => {
+
+      if(
+        member.user_id !==
+        currentUser.id
+      ){
+
+        map.set(
+          member.user_id,
+          member
+        );
+
+      }
+
+    }
+  );
+
+
+  return [
+    ...map.values()
+  ];
+
+}
+
+
+function renderConversations(){
+
+  const box =
+    document.getElementById(
+      "conversationList"
+    );
+
+
+  const users =
+    getConversationUsers();
+
+
+  if(!users.length){
+
+    box.innerHTML =
+      "No other members yet.";
+
+    return;
+
+  }
+
+
+  box.innerHTML =
+    users
+      .map(
+        user => `
+
+        <div
+          class="chat-user ${
+            selectedChatUser &&
+            selectedChatUser.user_id ===
+            user.user_id
+              ? "active"
+              : ""
+          }"
+          onclick="loadConversationById(
+            '${user.user_id}'
+          )"
+        >
+
+          <div
+            class="avatar"
+            style="width:38px;height:38px"
+          >
+
+            ${
+              user.avatar_url
+                ?
+                `<img
+                  src="${escapeHTML(
+                    user.avatar_url
+                  )}"
+                >`
+                :
+                "👤"
+            }
+
+          </div>
+
+
+          <div>
+
+            <strong class="gradient-name">
+
+              ${escapeHTML(
+                user.display_name ||
+                user.username ||
+                "Player"
+              )}
+
+            </strong>
+
+            ${onlineBadge(
+              user.user_id
+            )}
+
+          </div>
+
+        </div>
+
+      `
+      )
+      .join("");
+
+}
+
+
+function loadConversationById(
+  id
+){
+
+  const user =
+    allMembers.find(
+      member =>
+        member.user_id === id
+    );
+
+
+  if(user){
+
+    loadConversation(
+      user
+    );
+
+  }
+
+}
+
+
+async function loadConversation(
+  user
+){
+
+  selectedChatUser =
+    user;
+
+
+  document
+    .getElementById(
+      "chatTitle"
+    )
+    .textContent =
+      user.display_name ||
+      user.username ||
+      "Player";
+
+
+  document
+    .getElementById(
+      "chatStatus"
+    )
+    .innerHTML =
+      onlineBadge(
+        user.user_id
+      );
+
+
+  renderConversations();
+
+
+  const box =
+    document.getElementById(
+      "chatMessages"
+    );
+
+
+  box.innerHTML =
+    `<p class="muted">
+      Loading conversation...
+    </p>`;
+
+
+  const {
+    data,
+    error
+  } =
+    await db
+      .from("messages")
+      .select("*")
+      .or(
+        `and(sender_id.eq.${currentUser.id},receiver_id.eq.${user.user_id}),and(sender_id.eq.${user.user_id},receiver_id.eq.${currentUser.id})`
+      )
+      .order(
+        "created_at",
+        {
+          ascending:true
+        }
+      );
+
+
+  if(error){
+
+    box.innerHTML =
+      `<p class="muted">
+        ${escapeHTML(
+          error.message
+        )}
+      </p>`;
+
+    return;
+
+  }
+
+
+  if(
+    !data ||
+    !data.length
+  ){
+
+    box.innerHTML =
+      `<p class="muted">
+        No messages yet. Say hello 👋
+      </p>`;
+
+    return;
+
+  }
+
+
+  box.innerHTML =
+    data
+      .map(
+        message => `
+
+        <div
+          class="chat-bubble ${
+            message.sender_id ===
+            currentUser.id
+              ? "mine"
+              : ""
+          }"
+        >
+
+          ${escapeHTML(
+            message.content
+          )}
+
+          <span class="chat-time">
+
+            ${new Date(
+              message.created_at
+            ).toLocaleString()}
+
+          </span>
+
+        </div>
+
+      `
+      )
+      .join("");
+
+
+  box.scrollTop =
+    box.scrollHeight;
+
+}
+
+
+function handleChatKey(
+  event
+){
+
+  if(
+    event.key ===
+    "Enter"
+  ){
+
+    event.preventDefault();
+
+    sendChatMessage();
+
+  }
+
+}
+
+
+async function sendChatMessage(){
+
+  if(!selectedChatUser){
+
+    alert(
+      "Select a member first."
+    );
+
+    return;
+
+  }
+
+
+  const input =
+    document.getElementById(
+      "chatInput"
+    );
+
+
+  const content =
+    input.value.trim();
+
+
+  if(!content)
+    return;
+
+
+  const {
+    error
+  } =
+    await db
+      .from("messages")
+      .insert({
+
+        sender_id:
+          currentUser.id,
+
+        receiver_id:
+          selectedChatUser.user_id,
+
+        content
+
+      });
+
+
+  if(error){
+
+    alert(
+      error.message
+    );
+
+    return;
+
+  }
+
+
+  input.value = "";
+
+  await loadConversation(
+    selectedChatUser
+  );
+
+}
+
+
+/* =====================================================
+   GROUPS
+===================================================== */
+
+async function loadGroups(){
+
+  const {
+    data,
+    error
+  } =
+    await db
+      .from("groups")
+      .select("*")
+      .order(
+        "created_at",
+        {
+          ascending:false
+        }
+      );
+
+
+  const box =
+    document.getElementById(
+      "groupsList"
+    );
+
+
+  if(error){
+
+    box.innerHTML =
+      `<div class="card">
+        Groups unavailable.
+      </div>`;
+
+    return;
+
+  }
+
+
+  if(
+    !data ||
+    !data.length
+  ){
+
+    box.innerHTML =
+      `<div class="card">
+
+        <h2>👥 No groups yet</h2>
+
+        <p
+          class="muted"
+          style="margin-top:8px"
+        >
+
+          Groups will appear here when created.
+
+        </p>
+
+      </div>`;
+
+    return;
+
+  }
+
+
+  box.innerHTML =
+    data
+      .map(
+        group => `
+
+        <div class="card">
+
+          <h2>
+
+            ${escapeHTML(
+              group.icon ||
+              "👥"
+            )}
+
+            ${escapeHTML(
+              group.name
+            )}
+
+          </h2>
+
+
+          <p
+            class="muted"
+            style="margin-top:8px"
+          >
+
+            ${escapeHTML(
+              group.description ||
+              "Grand Market community"
+            )}
+
+          </p>
+
+
+          <button
+            class="btn green"
+            onclick="joinGroup(
+              '${group.id}'
+            )"
+          >
+
+            Join Group
+
+          </button>
+
+        </div>
+
+      `
+      )
+      .join("");
+
+}
+
+
+async function joinGroup(
+  groupId
+){
+
+  const {
+    error
+  } =
+    await db
+      .from("group_members")
+      .insert({
+
+        group_id:
+          groupId,
+
+        user_id:
+          currentUser.id
+
+      });
+
+
+  if(error){
+
+    if(
+      error.code ===
+      "23505"
+    ){
+
+      alert(
+        "You are already in this group."
+      );
+
+    }else{
+
+      alert(
+        error.message
+      );
+
+    }
+
+    return;
+
+  }
+
+
+  alert(
+    "Joined group successfully 👥"
+  );
+
+}
+
+
+/* =====================================================
+   MARKETPLACE
+===================================================== */
+
+function toggleListing(){
+
+  document
+    .getElementById(
+      "listingForm"
+    )
+    .classList.toggle(
+      "hidden"
+    );
+
+}
+
+
+async function createListing(){
+
+  const title =
+    document
+      .getElementById(
+        "listingTitle"
+      )
+      .value.trim();
+
+
+  const description =
+    document
+      .getElementById(
+        "listingDescription"
+      )
+      .value.trim();
+
+
+  const price =
+    Number(
+      document
+        .getElementById(
+          "listingPrice"
+        )
+        .value
+    );
+
+
+  const image =
+    document
+      .getElementById(
+        "listingImage"
+      )
+      .value.trim();
+
+
+  if(
+    !title ||
+    price < 0
+  ){
+
+    alert(
+      "Enter a title and valid CP price."
+    );
+
+    return;
+
+  }
+
+
+  const {
+    error
+  } =
+    await db
+      .from("listings")
+      .insert({
+
+        seller_id:
+          currentUser.id,
+
+        title,
+
+        description,
+
+        price_cp:
+          price,
+
+        image_url:
+          image || null
+
+      });
+
+
+  if(error){
+
+    alert(
+      error.message
+    );
+
+    return;
+
+  }
+
+
+  alert(
+    "Listing published 🛒"
+  );
+
+
+  document
+    .getElementById(
+      "listingForm"
+    )
+    .classList.add(
+      "hidden"
+    );
+
+
+  await loadListings();
+
+}
+
+
+async function loadListings(){
+
+  const {
+    data,
+    error
+  } =
+    await db
+      .from("listings")
+      .select("*")
+      .eq(
+        "status",
+        "active"
+      )
+      .order(
+        "created_at",
+        {
+          ascending:false
+        }
+      );
+
+
+  const box =
+    document.getElementById(
+      "listings"
+    );
+
+
+  if(error){
+
+    box.innerHTML =
+      `<div class="card">
+        Marketplace unavailable.
+      </div>`;
+
+    return;
+
+  }
+
+
+  if(
+    !data ||
+    !data.length
+  ){
+
+    box.innerHTML =
+      `<div class="card">
+
+        <h2>
+          🛒 Marketplace is empty
+        </h2>
+
+        <p class="muted">
+          Be the first seller.
+        </p>
+
+      </div>`;
+
+    return;
+
+  }
+
+
+  box.innerHTML =
+    data
+      .map(
+        listing => `
+
+        <div class="card">
+
+          ${
+            listing.image_url
+              ?
+              `<img
+                src="${escapeHTML(
+                  listing.image_url
+                )}"
+                style="
+                  width:100%;
+                  height:170px;
+                  object-fit:cover;
+                  border-radius:14px;
+                "
+              >`
+              :
+              ""
+          }
+
+
+          <h2 style="margin-top:12px">
+
+            ${escapeHTML(
+              listing.title
+            )}
+
+          </h2>
+
+
+          <p class="muted">
+
+            ${escapeHTML(
+              listing.description ||
+              ""
+            )}
+
+          </p>
+
+
+          <div
+            class="cp"
+            style="font-size:28px"
+          >
+
+            ${Number(
+              listing.price_cp
+            ).toLocaleString()}
+
+            CP
+
+          </div>
+
+        </div>
+
+      `
+      )
+      .join("");
+
+}
+
+
+/* =====================================================
+   RATINGS
+===================================================== */
+
+async function loadRatings(){
+
+  const {
+    data,
+    error
+  } =
+    await db
+      .from("ratings")
+      .select("*")
+      .order(
+        "created_at",
+        {
+          ascending:false
+        }
+      )
+      .limit(50);
+
+
+  const box =
+    document.getElementById(
+      "ratingsList"
+    );
+
+
+  if(error){
+
+    box.innerHTML =
+      `<div class="card">
+        Ratings unavailable.
+      </div>`;
+
+    return;
+
+  }
+
+
+  if(
+    !data ||
+    !data.length
+  ){
+
+    box.innerHTML =
+      `<div class="card">
+        ⭐ No ratings yet.
+      </div>`;
+
+    return;
+
+  }
+
+
+  box.innerHTML =
+    data
+      .map(
+        rating => `
+
+        <div class="card">
+
+          <h2>
+
+            ${"⭐".repeat(
+              Number(
+                rating.rating ||
+                0
+              )
+            )}
+
+          </h2>
+
+
+          <p
+            class="muted"
+            style="margin-top:8px"
+          >
+
+            ${escapeHTML(
+              rating.comment ||
+              ""
+            )}
+
+          </p>
+
+        </div>
+
+      `
+      )
+      .join("");
+
+}
+
+
+/* =====================================================
+   GIVEAWAYS
+===================================================== */
+
+async function loadGiveaways(){
+
+  const {
+    data,
+    error
+  } =
+    await db
+      .from("giveaways")
+      .select("*")
+      .order(
+        "created_at",
+        {
+          ascending:false
+        }
+      );
+
+
+  const box =
+    document.getElementById(
+      "giveawaysList"
+    );
+
+
+  if(error){
+
+    box.innerHTML =
+      `<div class="card">
+        Giveaways unavailable.
+      </div>`;
+
+    return;
+
+  }
+
+
+  if(
+    !data ||
+    !data.length
+  ){
+
+    box.innerHTML =
+      `<div class="card">
+        🎁 No giveaways yet.
+      </div>`;
+
+    return;
+
+  }
+
+
+  box.innerHTML =
+    data
+      .map(
+        giveaway => `
+
+        <div class="card">
+
+          <h2>
+
+            🎁
+            ${escapeHTML(
+              giveaway.title
+            )}
+
+          </h2>
+
+
+          <p
+            class="muted"
+            style="margin-top:8px"
+          >
+
+            ${escapeHTML(
+              giveaway.description ||
+              ""
+            )}
+
+          </p>
+
+
+          <h3 style="margin-top:12px">
+
+            🏆
+            ${escapeHTML(
+              giveaway.prize ||
+              "Prize"
+            )}
+
+          </h3>
+
+
+          <button
+            class="btn orange"
+            onclick="enterGiveaway(
+              '${giveaway.id}'
+            )"
+          >
+
+            Enter Giveaway
+
+          </button>
+
+        </div>
+
+      `
+      )
+      .join("");
+
+}
+
+
+async function enterGiveaway(
+  id
+){
+
+  const {
+    error
+  } =
+    await db
+      .from(
+        "giveaway_entries"
+      )
+      .insert({
+
+        giveaway_id:
+          id,
+
+        user_id:
+          currentUser.id
+
+      });
+
+
+  if(error){
+
+    if(
+      error.code ===
+      "23505"
+    ){
+
+      alert(
+        "You already entered this giveaway."
+      );
+
+    }else{
+
+      alert(
+        error.message
+      );
+
+    }
+
+    return;
+
+  }
+
+
+  alert(
+    "Entry successful 🎁🔥"
+  );
+
+}
+
+
+/* =====================================================
+   LEADERBOARD
+===================================================== */
+
+function loadLeaderboard(){
+
+  const box =
+    document.getElementById(
+      "leaderboardList"
+    );
+
+
+  if(!allMembers.length){
+
+    box.innerHTML =
+      `<div class="item">
+        No members yet.
+      </div>`;
+
+    return;
+
+  }
+
+
+  box.innerHTML =
+    getSortedMembers(
+      allMembers
+    )
+    .slice(0,10)
+    .map(
+      (member,index) => `
+
+      <div class="item">
+
+        <strong class="gradient-name">
+
+          #${index + 1}
+
+          ${escapeHTML(
+            member.display_name ||
+            member.username ||
+            "Player"
+          )}
+
+        </strong>
+
+
+        ${onlineBadge(
+          member.user_id
+        )}
+
+
+        ${roleBadge(
+          member.role
+        )}
+
+      </div>
+
+    `
+    )
+    .join("");
+
+}
+
+
+/* =====================================================
+   TEAM
+===================================================== */
+
+async function loadTeam(){
+
+  renderTeam();
+
+}
+
+
+function getTeamMembers(){
+
+  return allMembers.filter(
+    member => {
+
+      const role =
+        String(
+          member.role ||
+          ""
+        ).toLowerCase();
+
+
+      return (
+        role.includes("owner") ||
+        role.includes("admin") ||
+        role.includes("moderator")
+      );
+
+    }
+  );
+
+}
+
+
+function teamCard(
+  member
+){
+
+  const name =
+    member.display_name ||
+    member.username ||
+    "Team Member";
+
+
+  return `
+
+    <div class="team-card">
+
+      <div class="team-card-inner">
+
+        <div class="avatar">
+
+          ${
+            member.avatar_url
+              ?
+              `<img
+                src="${escapeHTML(
+                  member.avatar_url
+                )}"
+              >`
+              :
+              "👤"
+          }
+
+        </div>
+
+
+        <div>
+
+          <div class="gradient-name">
+
+            ${escapeHTML(
+              name
+            )}
+
+          </div>
+
+
+          <div class="member-user">
+
+            @${escapeHTML(
+              member.username ||
+              "user"
+            )}
+
+          </div>
+
+
+          ${onlineBadge(
+            member.user_id
+          )}
+
+
+          ${roleBadge(
+            member.role
+          )}
+
+        </div>
+
+      </div>
+
+
+      <button
+        class="btn"
+        style="
+          margin-top:13px;
+          width:100%
+        "
+        onclick="openMemberProfile(
+          '${member.user_id}'
+        )"
+      >
+
+        View Profile
+
+      </button>
+
+    </div>
+
+  `;
+
+}
+
+
+function renderTeam(){
+
+  const track =
+    document.getElementById(
+      "teamTrack"
+    );
+
+
+  const fullTeam =
+    document.getElementById(
+      "fullTeamList"
+    );
+
+
+  if(!track || !fullTeam)
+    return;
+
+
+  const team =
+    getTeamMembers();
+
+
+  if(!team.length){
+
+    track.innerHTML =
+      `
+
+      <div class="team-card">
+
+        <h3>
+          🛡️ Grand Market Team
+        </h3>
+
+        <p
+          class="muted"
+          style="margin-top:8px"
+        >
+
+          Team profiles will appear here.
+
+        </p>
+
+      </div>
+
+      `;
+
+
+    fullTeam.innerHTML =
+      `<div class="card">
+        No team members added yet.
+      </div>`;
+
+    return;
+
+  }
+
+
+  const cards =
+    team
+      .map(
+        teamCard
+      )
+      .join("");
+
+
+  track.innerHTML =
+    cards +
+    cards;
+
+
+  fullTeam.innerHTML =
+    team
+      .map(
+        teamCard
+      )
+      .join("");
+
+}
+
+
+/* =====================================================
+   ROLE PERMISSIONS
+===================================================== */
+
+function normalizeRole(
+  role
+){
+
+  return String(
+    role ||
+    "Grand Member"
+  )
+  .toLowerCase()
+  .trim();
+
+}
+
+
+function canManageRoles(){
+
+  if(!currentProfile)
+    return false;
+
+
+  const role =
+    normalizeRole(
+      currentProfile.role
+    );
+
+
+  return (
+    role === "owner" ||
+    role === "administrator" ||
+    role === "admin"
+  );
+
+}
+
+
+function canViewReports(){
+
+  if(!currentProfile)
+    return false;
+
+
+  const role =
+    normalizeRole(
+      currentProfile.role
+    );
+
+
+  return (
+    role === "owner" ||
+    role === "administrator" ||
+    role === "admin" ||
+    role === "moderator" ||
+    role === "mod"
+  );
+
+}
+
+
+/* =====================================================
+   ROLE MANAGER
+===================================================== */
+
+function updateRoleManager(){
+
+  const box =
+    document.getElementById(
+      "roleManager"
+    );
+
+
+  if(!box)
+    return;
+
+
+  if(
+    !canManageRoles()
+  ){
+
+    box.classList.add(
+      "hidden"
+    );
+
+    return;
+
+  }
+
+
+  box.classList.remove(
+    "hidden"
+  );
+
+
+  const select =
+    document.getElementById(
+      "roleUser"
+    );
+
+
+  select.innerHTML =
+    allMembers
+      .filter(
+        member =>
+          member.user_id !==
+          currentUser.id
+      )
+      .map(
+        member => `
+
+        <option
+          value="${member.user_id}"
+        >
+
+          ${escapeHTML(
+            member.display_name ||
+            member.username ||
+            "Player"
+          )}
+
+          —
+          ${escapeHTML(
+            member.role ||
+            "Grand Member"
+          )}
+
+        </option>
+
+      `
+      )
+      .join("");
+
+}
+
+
+/* =====================================================
+   CHANGE ROLE
+===================================================== */
+
+async function changeUserRole(){
+
+  if(
+    !canManageRoles()
+  ){
+
+    alert(
+      "You do not have permission to manage roles."
+    );
+
+    return;
+
+  }
+
+
+  const userId =
+    document
+      .getElementById(
+        "roleUser"
+      )
+      .value;
+
+
+  const role =
+    document
+      .getElementById(
+        "roleSelect"
+      )
+      .value;
+
+
+  const status =
+    document.getElementById(
+      "roleStatus"
+    );
+
+
+  if(!userId){
+
+    status.textContent =
+      "Select a user.";
+
+    return;
+
+  }
+
+
+  status.textContent =
+    "Updating role...";
+
+
+  const {
+    error
+  } =
+    await db
+      .from("Profiles")
+      .update({
+        role
+      })
+      .eq(
+        "user_id",
+        userId
+      );
+
+
+  if(error){
+
+    status.textContent =
+      error.message;
+
+    return;
+
+  }
+
+
+  status.textContent =
+    "Role updated successfully ✅";
+
+
+  await loadMembers();
+
+  await loadTeam();
+
+  await loadProfile();
+
+}
+
+
+/* =====================================================
+   REPORTS
+===================================================== */
+
+async function submitReport(){
+
+  const reason =
+    document
+      .getElementById(
+        "reportReason"
+      )
+      .value;
+
+
+  const username =
+    document
+      .getElementById(
+        "reportUsername"
+      )
+      .value
+      .replace(
+        "@",
+        ""
+      )
+      .trim();
+
+
+  const details =
+    document
+      .getElementById(
+        "reportDetails"
+      )
+      .value
+      .trim();
+
+
+  const status =
+    document.getElementById(
+      "reportStatus"
+    );
+
+
+  if(
+    !reason ||
+    !username ||
+    !details
+  ){
+
+    status.textContent =
+      "Complete the report.";
+
+    return;
+
+  }
+
+
+  const target =
+    allMembers.find(
+      member =>
+        String(
+          member.username ||
+          ""
+        )
+        .toLowerCase() ===
+        username.toLowerCase()
+    );
+
+
+  const {
+    error
+  } =
+    await db
+      .from("reports")
+      .insert({
+
+        reporter_id:
+          currentUser.id,
+
+        reported_user_id:
+          target
+            ?
+            target.user_id
+            :
+            null,
+
+        reason,
+
+        details,
+
+        status:
+          "pending"
+
+      });
+
+
+  if(error){
+
+    status.textContent =
+      error.message;
+
+    return;
+
+  }
+
+
+  status.textContent =
+    "Report submitted successfully 🚨";
+
+
+  if(
+    canViewReports()
+  ){
+
+    await loadStaffReports();
+
+  }
+
+}
+
+
+/* =====================================================
+   REPORT VIEW
+===================================================== */
+
+async function loadStaffReports(){
+
+  const staffBox =
+    document.getElementById(
+      "staffReports"
+    );
+
+
+  const list =
+    document.getElementById(
+      "reportsList"
+    );
+
+
+  if(
+    !canViewReports()
+  ){
+
+    staffBox.classList.add(
+      "hidden"
+    );
+
+    return;
+
+  }
+
+
+  staffBox.classList.remove(
+    "hidden"
+  );
+
+
+  list.innerHTML =
+    `<div class="card">
+      Loading reports...
+    </div>`;
+
+
+  const {
+    data,
+    error
+  } =
+    await db
+      .from("reports")
+      .select("*")
+      .order(
+        "created_at",
+        {
+          ascending:false
+        }
+      );
+
+
+  if(error){
+
+    list.innerHTML =
+      `<div class="card">
+
+        Unable to load reports.
+
+        <p
+          class="muted"
+          style="margin-top:6px"
+        >
+
+          ${escapeHTML(
+            error.message
+          )}
+
+        </p>
+
+      </div>`;
+
+    return;
+
+  }
+
+
+  if(
+    !data ||
+    !data.length
+  ){
+
+    list.innerHTML =
+      `<div class="card">
+
+        No reports yet. ✅
+
+      </div>`;
+
+    return;
+
+  }
+
+
+  list.innerHTML =
+    data
+      .map(
+        report => {
+
+          const target =
+            allMembers.find(
+              member =>
+                member.user_id ===
+                report.reported_user_id
+            );
+
+
+          const reporter =
+            allMembers.find(
+              member =>
+                member.user_id ===
+                report.reporter_id
+            );
+
+
+          const targetName =
+            target
+              ?
+              (
+                target.display_name ||
+                target.username
+              )
+              :
+              "Unknown player";
+
+
+          const reporterName =
+            reporter
+              ?
+              (
+                reporter.display_name ||
+                reporter.username
+              )
+              :
+              "Unknown";
+
+
+          const resolved =
+            report.status ===
+            "resolved";
+
+
+          return `
+
+          <div class="report-card">
+
+            <div
+              style="
+                display:flex;
+                justify-content:space-between;
+                gap:10px;
+              "
+            >
+
+              <strong>
+                🚨 ${escapeHTML(
+                  report.reason
+                )}
+              </strong>
+
+
+              <strong
+                class="${
+                  resolved
+                    ?
+                    "report-resolved"
+                    :
+                    "report-pending"
+                }"
+              >
+
+                ${
+                  resolved
+                    ?
+                    "RESOLVED"
+                    :
+                    "PENDING"
+                }
+
+              </strong>
+
+            </div>
+
+
+            <p
+              class="muted"
+              style="margin-top:10px"
+            >
+
+              Reported player:
+              <strong style="color:white">
+
+                ${escapeHTML(
+                  targetName
+                )}
+
+              </strong>
+
+            </p>
+
+
+            <p
+              class="muted"
+              style="margin-top:5px"
+            >
+
+              Reported by:
+              <strong style="color:white">
+
+                ${escapeHTML(
+                  reporterName
+                )}
+
+              </strong>
+
+            </p>
+
+
+            <p
+              style="margin-top:12px"
+            >
+
+              ${escapeHTML(
+                report.details ||
+                ""
+              )}
+
+            </p>
+
+
+            <p
+              class="muted"
+              style="margin-top:10px"
+            >
+
+              ${report.created_at
+                ?
+                new Date(
+                  report.created_at
+                ).toLocaleString()
+                :
+                ""
+              }
+
+            </p>
+
+
+            ${
+              !resolved
+                ?
+                `
+
+                <button
+                  class="btn green"
+                  style="margin-top:12px"
+                  onclick="resolveReport(
+                    '${report.id}'
+                  )"
+                >
+
+                  ✅ Mark Resolved
+
+                </button>
+
+                `
+                :
+                ""
+            }
+
+          </div>
+
+          `;
+
+        }
+      )
+      .join("");
+
+}
+
+
+/* =====================================================
+   RESOLVE REPORT
+===================================================== */
+
+async function resolveReport(
+  id
+){
+
+  if(
+    !canViewReports()
+  ){
+
+    alert(
+      "You do not have permission."
+    );
+
+    return;
+
+  }
+
+
+  const {
+    error
+  } =
+    await db
+      .from("reports")
+      .update({
+
+        status:
+          "resolved",
+
+        reviewed_by:
+          currentUser.id,
+
+        reviewed_at:
+          new Date()
+            .toISOString()
+
+      })
+      .eq(
+        "id",
+        id
+      );
+
+
+  if(error){
+
+    alert(
+      error.message
+    );
+
+    return;
+
+  }
+
+
+  await loadStaffReports();
+
+}
+
+
+/* =====================================================
+   REPORT PROFILE
+===================================================== */
+
+function reportViewedUser(){
+
+  if(viewedUser){
+
+    document
+      .getElementById(
+        "reportUsername"
+      )
+      .value =
+        "@" +
+        (
+          viewedUser.username ||
+          ""
+        );
+
+  }
+
+
+  openPageById(
+    "reports"
+  );
+
+}
+
+
+/* =====================================================
+   NOTIFICATIONS
+===================================================== */
+
+async function loadNotifications(){
+
+  const {
+    data,
+    error
+  } =
+    await db
+      .from("notifications")
+      .select("*")
+      .eq(
+        "user_id",
+        currentUser.id
+      )
+      .order(
+        "created_at",
+        {
+          ascending:false
+        }
+      )
+      .limit(30);
+
+
+  const box =
+    document.getElementById(
+      "notificationsList"
+    );
+
+
+  if(error){
+
+    box.innerHTML =
+      `<div class="item">
+        Notifications unavailable.
+      </div>`;
+
+    return;
+
+  }
+
+
+  if(
+    !data ||
+    !data.length
+  ){
+
+    box.innerHTML =
+      `<div class="item">
+        No notifications 🔔
+      </div>`;
+
+    return;
+
+  }
+
+
+  box.innerHTML =
+    data
+      .map(
+        notification => `
+
+        <div class="notification">
+
+          <strong>
+
+            ${escapeHTML(
+              notification.title
+            )}
+
+          </strong>
+
+
+          <p class="muted">
+
+            ${escapeHTML(
+              notification.message ||
+              ""
+            )}
+
+          </p>
+
+        </div>
+
+      `
+      )
+      .join("");
+
+}
+
+
+/* =====================================================
+   DEPOSIT
+===================================================== */
+
+async function submitDeposit(){
+
+  const amount =
+    Number(
+      document
+        .getElementById(
+          "depositAmount"
+        )
+        .value
+    );
+
+
+  const reference =
+    document
+      .getElementById(
+        "depositReference"
+      )
+      .value.trim();
+
+
+  const status =
+    document.getElementById(
+      "depositStatus"
+    );
+
+
+  if(
+    !amount ||
+    !reference
+  ){
+
+    status.textContent =
+      "Enter amount and payment reference.";
+
+    return;
+
+  }
+
+
+  const cp =
+    amount * 1000;
+
+
+  const {
+    error
+  } =
+    await db
+      .from("Deposits")
+      .insert({
+
+        user_id:
+          currentUser.id,
+
+        amount,
+
+        payment_reference:
+          reference,
+
+        status:
+          "pending",
+
+        cp_amount:
+          cp
+
+      });
+
+
+  if(error){
+
+    status.textContent =
+      error.message;
+
+    return;
+
+  }
+
+
+  status.textContent =
+    "Deposit submitted for review ⏳";
+
+}
+
+
+/* =====================================================
+   ROLE BADGE
+===================================================== */
+
+function roleBadge(
+  role
+){
+
+  const value =
+    role ||
+    "Grand Member";
+
+
+  const lower =
+    value.toLowerCase();
+
+
+  let css =
+    "role-member";
+
+
+  if(
+    lower.includes(
+      "owner"
+    )
+  ){
+
+    css =
+      "role-owner";
+
+  }
+  else if(
+    lower.includes(
+      "admin"
+    )
+  ){
+
+    css =
+      "role-admin";
+
+  }
+  else if(
+    lower.includes(
+      "moderator"
+    )
+  ){
+
+    css =
+      "role-mod";
+
+  }
+  else if(
+    lower.includes(
+      "vip"
+    )
+  ){
+
+    css =
+      "role-vip";
+
+  }
+  else if(
+    lower.includes(
+      "premium"
+    )
+  ){
+
+    css =
+      "role-premium";
+
+  }
+  else if(
+    lower.includes(
+      "seller"
+    )
+  ){
+
+    css =
+      "role-seller";
+
+  }
+
+
+  return `
+
+    <span class="role ${css}">
+
+      ${escapeHTML(
+        value.toUpperCase()
+      )}
+
+    </span>
+
+  `;
+
+}
+
+
+/* =====================================================
+   NAVIGATION
+===================================================== */
+
+function openPage(
+  id,
+  button
+){
+
+  document
+    .querySelectorAll(
+      ".page"
+    )
+    .forEach(
+      page =>
+        page.classList.remove(
+          "active"
+        )
+    );
+
+
+  const target =
+    document.getElementById(
+      id
+    );
+
+
+  if(target){
+
+    target.classList.add(
+      "active"
+    );
+
+  }
+
+
+  document
+    .querySelectorAll(
+      ".nav"
+    )
+    .forEach(
+      nav =>
+        nav.classList.remove(
+          "active"
+        )
+    );
+
+
+  if(button){
+
+    button.classList.add(
+      "active"
+    );
+
+  }
+
+
+  if(
+    id ===
+    "members"
+  ){
+
+    renderMembers(
+      getSortedMembers(
+        allMembers
+      )
+    );
+
+  }
+
+
+  if(
+    id ===
+    "messages"
+  ){
+
+    renderConversations();
+
+  }
+
+
+  if(
+    id ===
+    "team"
+  ){
+
+    renderTeam();
+
+  }
+
+
+  if(
+    id ===
+    "reports"
+  ){
+
+    loadStaffReports();
+
+  }
+
+
+  updateBottomNav(
+    id
+  );
+
+}
+
+
+function openPageById(
+  id
+){
+
+  const button =
+    [
+      ...document
+        .querySelectorAll(
+          ".nav"
+        )
+    ]
+    .find(
+      nav =>
+        nav.getAttribute(
+          "onclick"
+        ) &&
+        nav
+          .getAttribute(
+            "onclick"
+          )
+          .includes(
+            `'${id}'`
+          )
+    );
+
+
+  openPage(
+    id,
+    button
+  );
+
+}
+
+
+/* =====================================================
+   BOTTOM NAV
+===================================================== */
+
+function updateBottomNav(
+  id
+){
+
+  document
+    .querySelectorAll(
+      ".bottom-nav button"
+    )
+    .forEach(
+      button =>
+        button.classList.remove(
+          "active"
+        )
+    );
+
+
+  if(
+    id ===
+    "home"
+  ){
+
+    document
+      .querySelector(
+        ".bottom-nav button:nth-child(1)"
+      )
+      ?.classList.add(
+        "active"
+      );
+
+  }
+
+
+  if(
+    id ===
+    "wallet"
+  ){
+
+    document
+      .querySelector(
+        ".bottom-nav button:nth-child(2)"
+      )
+      ?.classList.add(
+        "active"
+      );
+
+  }
+
+
+  if(
+    id ===
+    "profile"
+  ){
+
+    document
+      .querySelector(
+        ".bottom-nav button:nth-child(3)"
+      )
+      ?.classList.add(
+        "active"
+      );
+
+  }
+
+}
+
+
+/* =====================================================
+   LOGOUT
+===================================================== */
+
+async function logout(){
+
+  try{
+
+    if(
+      presenceChannel
+    ){
+
+      try{
+
+        await presenceChannel
+          .untrack();
+
+      }catch(e){}
+
+
+      try{
+
+        await db
+          .removeChannel(
+            presenceChannel
+          );
+
+      }catch(e){}
+
+    }
+
+
+    await db.auth.signOut();
+
+  }
+  finally{
+
+    currentUser =
+      null;
+
+    currentProfile =
+      null;
+
+    onlineUsers.clear();
+
+
+    document
+      .getElementById(
+        "app"
+      )
+      .style.display =
+        "none";
+
+
+    document
+      .getElementById(
+        "auth"
+      )
+      .style.display =
+        "flex";
+
+
+    showLogin();
+
+  }
+
+}
+
+
+/* =====================================================
+   SECURITY / ESCAPE
+===================================================== */
+
+function escapeHTML(
+  value
+){
+
+  return String(
+    value ?? ""
+  )
+  .replace(
+    /&/g,
+    "&amp;"
+  )
+  .replace(
+    /</g,
+    "&lt;"
+  )
+  .replace(
+    />/g,
+    "&gt;"
+  )
+  .replace(
+    /"/g,
+    "&quot;"
+  )
+  .replace(
+    /'/g,
+    "&#039;"
+  );
+
+}
+
+
+/* =====================================================
+   AUTH SESSION
+===================================================== */
+
+db.auth.onAuthStateChange(
+  async (
+    event,
+    session
+  ) => {
+
+    if(
+      event ===
+      "SIGNED_OUT"
+    ){
+
+      currentUser =
+        null;
+
+      currentProfile =
+        null;
+
+      return;
+
+    }
+
+
+    if(
+      session &&
+      !currentUser
+    ){
+
+      currentUser =
+        session.user;
+
+      await startApp();
+
+    }
+
+  }
+);
+
+
+/* =====================================================
+   INITIAL SESSION
+===================================================== */
+
+async function checkSession(){
+
+  const {
+    data
+  } =
+    await db.auth.getSession();
+
+
+  if(
+    data.session
+  ){
+
+    currentUser =
+      data.session.user;
+
+    await startApp();
+
+  }
+
+}
+
+
+checkSession();
+
+</script>
+
+</body>
+  </html>
